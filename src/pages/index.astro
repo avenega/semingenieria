@@ -25,10 +25,14 @@ const pilares = [
     <div class="container">
       <img src="/logo.png" alt="SEM Ingeniería" class="hero-logo" />
       <h1>
-        <span style="color: #737373;">SEM</span>{' '}
-        <span style="color: #ffcc29;">INGENIERÍA</span>
+        <span class="logo-text-sem">SEM</span>{' '}
+        <span class="logo-text-ing">INGENIERÍA</span>
       </h1>
       <p>Soluciones Integrales con Energía y Prevención</p>
+      <div class="hero-cta">
+        <a href="/servicios" class="btn btn-primary">Ver servicios</a>
+        <a href="/contacto" class="btn btn-outline">Contactar</a>
+      </div>
     </div>
   </section>
 
@@ -48,7 +52,7 @@ const pilares = [
     <div class="pillars-grid">
       {
         pilares.map((p) => (
-          <div class="pillar-card">
+          <div class="pillar-card reveal">
             <i class={`fa-solid ${p.icon}`} />
             <h3>{p.title}</h3>
             <p>{p.text}</p>
@@ -58,7 +62,7 @@ const pilares = [
     </div>
 
     <div class="mv-grid">
-      <div class="mv-card">
+      <div class="mv-card reveal">
         <i class="fa-solid fa-eye"></i>
         <h3>Visión</h3>
         <p>
@@ -66,7 +70,7 @@ const pilares = [
           responsabilidad y la excelencia en cada proyecto.
         </p>
       </div>
-      <div class="mv-card">
+      <div class="mv-card reveal">
         <i class="fa-solid fa-shield-halved"></i>
         <h3>Misión</h3>
         <p>
@@ -74,7 +78,7 @@ const pilares = [
           satisfacción a nuestros clientes.
         </p>
       </div>
-      <div class="mv-card">
+      <div class="mv-card reveal">
         <i class="fa-solid fa-handshake"></i>
         <h3>Compromiso</h3>
         <p>

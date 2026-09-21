@@ -15,14 +15,28 @@ const links = [
 ];
 ---
 
-<header>
+<header class="site-header" id="site-header">
   <div class="nav-container">
     <a href="/" class="logo-nav">
       <img src="/logo.png" alt="SEM Ingeniería Logo" />
-      <span style="color: #737373;">SEM</span>{' '}
-      <span style="color: #ffcc29;">INGENIERÍA</span>
+      <span class="logo-text-sem">SEM</span>{' '}
+      <span class="logo-text-ing">INGENIERÍA</span>
     </a>
-    <ul class="nav-menu">
+
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+      aria-label="Abrir menú"
+      id="nav-toggle"
+    >
+      <span class="nav-toggle-bar" aria-hidden="true"></span>
+      <span class="nav-toggle-bar" aria-hidden="true"></span>
+      <span class="nav-toggle-bar" aria-hidden="true"></span>
+    </button>
+
+    <ul class="nav-menu" id="nav-menu">
       {
         links.map((link) => (
           <li>
@@ -35,3 +49,40 @@ const links = [
     </ul>
   </div>
 </header>
+
+<script>
+  const header = document.getElementById('site-header');
+  const toggle = document.getElementById('nav-toggle');
+  const menu = document.getElementById('nav-menu');
+
+  function onScroll() {
+    if (!header) return;
+    header.classList.toggle('is-compact', window.scrollY > 24);
+  }
+
+  function closeMenu() {
+    if (!toggle || !menu) return;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Abrir menú');
+    menu.classList.remove('is-open');
+    document.body.classList.remove('nav-open');
+  }
+
+  function toggleMenu() {
+    if (!toggle || !menu) return;
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    toggle.setAttribute('aria-label', open ? 'Abrir menú' : 'Cerrar menú');
+    menu.classList.toggle('is-open', !open);
+    document.body.classList.toggle('nav-open', !open);
+  }
+
+  toggle?.addEventListener('click', toggleMenu);
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+</script>

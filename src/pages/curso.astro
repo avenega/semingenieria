@@ -2,7 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="SEM Ingeniería - Obras en Curso" active="curso" showFooter={false}>
+<BaseLayout
+  title="SEM Ingeniería - Obras en Curso"
+  description="Frentes de trabajo activos e instalaciones en desarrollo a nivel nacional."
+  active="curso"
+>
   <div class="container">
     <h2 class="with-subtitle">Obras en Curso</h2>
     <p class="page-subtitle">
@@ -10,7 +14,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </p>
 
     <div class="projects-grid">
-      <div class="project-card">
+      <div class="project-card reveal">
         <div class="project-img-placeholder">
           <i class="fa-solid fa-helmet-safety fa-2x"></i>
         </div>
@@ -21,7 +25,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
       </div>
 
-      <div class="project-card">
+      <div class="project-card reveal">
         <div class="project-img-placeholder">
           <i class="fa-solid fa-fire-extinguisher fa-2x"></i>
         </div>

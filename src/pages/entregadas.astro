@@ -14,13 +14,17 @@ const proyectos = [
 ];
 ---
 
-<BaseLayout title="SEM Ingeniería - Obras Entregadas" active="entregadas" showFooter={false}>
+<BaseLayout
+  title="SEM Ingeniería - Obras Entregadas"
+  description="Proyectos entregados por SEM Ingeniería en agroindustria, combustibles, minería y comercio."
+  active="entregadas"
+>
   <div class="container">
     <h2>Obras Entregadas</h2>
     <div class="projects-grid entregadas">
       {
         proyectos.map((p) => (
-          <div class="project-card">
+          <div class="project-card reveal">
             <div class="project-img-placeholder">
               <i class={`fa-solid ${p.icon} fa-2x`} />
             </div>

@@ -6,11 +6,19 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
+  description?: string;
   active?: string;
-  showFooter?: boolean;
 }
 
-const { title, active = '', showFooter = true } = Astro.props;
+const {
+  title,
+  description = 'SEM Ingeniería: soluciones en ingeniería eléctrica, electrónica, electromecánica y sistemas contra incendios en Paraguay.',
+  active = '',
+} = Astro.props;
+
+const siteUrl = 'https://semingenieria.avenega9999.workers.dev';
+const canonical = new URL(Astro.url.pathname, siteUrl).href;
+const ogImage = new URL('/logo.png', siteUrl).href;
 ---
 
 <!DOCTYPE html>
@@ -19,7 +27,24 @@ const { title, active = '', showFooter = true } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_PY" />
+    <meta property="og:site_name" content="SEM Ingeniería" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
       rel="stylesheet"
@@ -40,6 +65,31 @@ const { title, active = '', showFooter = true } = Astro.props;
     <SiteBoot />
     <Header active={active} />
     <slot />
-    {showFooter && <Footer />}
+    <Footer />
+
+    <script>
+      const reveals = document.querySelectorAll('.reveal');
+      if (reveals.length && 'IntersectionObserver' in window) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce) {
+          reveals.forEach((el) => el.classList.add('is-visible'));
+        } else {
+          const io = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('is-visible');
+                  io.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
+          );
+          reveals.forEach((el) => io.observe(el));
+        }
+      } else {
+        reveals.forEach((el) => el.classList.add('is-visible'));
+      }
+    </script>
   </body>
 </html>

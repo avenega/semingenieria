@@ -1,72 +1,155 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const canales = [
+  {
+    icon: 'fa-phone-volume',
+    label: 'Teléfono',
+    value: '0976 129 559',
+    href: 'tel:0976129559',
+    hint: 'Atención directa',
+  },
+  {
+    icon: 'fa-envelope',
+    label: 'Correo',
+    value: 'info@semingenieria.com.py',
+    href: 'mailto:info@semingenieria.com.py',
+    hint: 'Consultas y cotizaciones',
+  },
+  {
+    icon: 'fa-brands fa-whatsapp',
+    label: 'WhatsApp',
+    value: '+595 976 129 559',
+    href: 'https://wa.me/595976129559',
+    hint: 'Respuesta ágil',
+    external: true,
+    brand: 'wa',
+  },
+  {
+    icon: 'fa-clock',
+    label: 'Horario',
+    value: 'Lun–Vie 07:00–17:00',
+    href: null,
+    hint: 'Sábados 08:00–12:00',
+  },
+];
 ---
 
-<BaseLayout title="SEM Ingeniería - Contacto" active="contacto" showFooter={false}>
-  <div class="container">
-    <h2>Contacto</h2>
+<BaseLayout
+  title="SEM Ingeniería - Contacto"
+  description="Contactá a SEM Ingeniería: teléfono 0976 129 559, correo info@semingenieria.com.py y WhatsApp."
+  active="contacto"
+>
+  <section class="contact-hero">
+    <div class="contact-hero-inner">
+      <p class="contact-kicker">Hablemos de tu proyecto</p>
+      <h1 class="contact-title">Contacto</h1>
+      <p class="contact-lead">
+        Estamos listos para acompañarte en ingeniería eléctrica, montajes industriales y
+        sistemas de prevención. Elegí el canal que prefieras o escribinos desde el formulario.
+      </p>
+    </div>
+  </section>
 
-    <div class="contact-grid">
-      <div class="contact-info-panel">
-        <div class="contact-item">
-          <i class="fa-solid fa-phone-volume"></i>
-          <div>
-            <h4>Atención Telefónica</h4>
-            <p><a href="tel:0976129559">0976 129 559</a></p>
-          </div>
+  <div class="contact-page">
+    <div class="contact-channels">
+      {
+        canales.map((c) => {
+          const iconClass = c.icon.startsWith('fa-brands')
+            ? c.icon
+            : `fa-solid ${c.icon}`;
+          const Tag = c.href ? 'a' : 'div';
+          const extra = c.href
+            ? {
+                href: c.href,
+                ...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
+              }
+            : {};
+          return (
+            <Tag class:list={['contact-channel', 'reveal', c.brand && `is-${c.brand}`]} {...extra}>
+              <span class="contact-channel-icon">
+                <i class={iconClass} aria-hidden="true" />
+              </span>
+              <span class="contact-channel-body">
+                <span class="contact-channel-label">{c.label}</span>
+                <span class="contact-channel-value">{c.value}</span>
+                <span class="contact-channel-hint">{c.hint}</span>
+              </span>
+            </Tag>
+          );
+        })
+      }
+    </div>
+
+    <div class="contact-main">
+      <aside class="contact-aside reveal">
+        <div class="contact-aside-badge">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
         </div>
+        <h2>Compromiso SEM</h2>
+        <p>
+          Garantía de calidad, responsabilidad técnica y seguridad en cada proyecto dentro del
+          territorio nacional.
+        </p>
+        <ul class="contact-aside-list">
+          <li>
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Asesoramiento técnico personalizado
+          </li>
+          <li>
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Cobertura en todo el Paraguay
+          </li>
+          <li>
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            Respuesta ágil a cotizaciones
+          </li>
+        </ul>
+        <a
+          href="https://wa.me/595976129559"
+          class="contact-wa"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+          Escribinos por WhatsApp
+        </a>
+      </aside>
 
-        <div class="contact-item">
-          <i class="fa-solid fa-envelope"></i>
-          <div>
-            <h4>Correo Electrónico</h4>
-            <p>
-              <a href="mailto:info@semingenieria.com.py">info@semingenieria.com.py</a>
-            </p>
-          </div>
+      <div class="contact-form-shell reveal">
+        <div class="contact-form-head">
+          <h2>Enviar consulta</h2>
+          <p>Completá los datos y te contactamos a la brevedad.</p>
         </div>
-
-        <div class="contact-item">
-          <i class="fa-solid fa-clock"></i>
-          <div>
-            <h4>Horario de Oficina</h4>
-            <p>
-              Lunes a Viernes: 07:00 a 17:00 hs.<br />
-              Sábados: 08:00 a 12:00 hs.
-            </p>
-          </div>
-        </div>
-
-        <div class="contact-item">
-          <i class="fa-solid fa-shield-halved"></i>
-          <div>
-            <h4>Compromiso SEM</h4>
-            <p>
-              Garantía de calidad, responsabilidad técnica y seguridad en cada proyecto dentro
-              del territorio nacional.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="contact-form-panel">
         <form
+          class="contact-form"
           action="#"
           method="POST"
           onsubmit="alert('Esta es una demostración visual. Para activar el formulario se requiere configuración del servidor.'); return false;"
         >
-          <div class="form-group">
-            <label for="name">Nombre / Empresa</label>
-            <input
-              type="text"
-              id="name"
-              class="form-control"
-              placeholder="Ej. Constructora S.A."
-              required
-            />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nombre / Empresa</label>
+              <input
+                type="text"
+                id="name"
+                class="form-control"
+                placeholder="Ej. Constructora S.A."
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="phone">Teléfono</label>
+              <input
+                type="tel"
+                id="phone"
+                class="form-control"
+                placeholder="Ej. 0976 000 000"
+              />
+            </div>
           </div>
           <div class="form-group">
-            <label for="email">Correo de Contacto</label>
+            <label for="email">Correo de contacto</label>
             <input
               type="email"
               id="email"
@@ -76,35 +159,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             />
           </div>
           <div class="form-group">
-            <label for="message">Detalle de su Proyecto o Solicitud</label>
+            <label for="message">Detalle del proyecto o solicitud</label>
             <textarea
               id="message"
-              rows="4"
+              rows="5"
               class="form-control"
-              placeholder="Describa brevemente los requerimientos eléctricos, industriales o contra incendios..."
+              placeholder="Describí brevemente los requerimientos eléctricos, industriales o contra incendios..."
               required></textarea>
           </div>
-          <button type="submit" class="btn-submit">Enviar Mensaje por Web</button>
+          <button type="submit" class="btn-submit">
+            Enviar mensaje
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
         </form>
-
-        <a
-          href="https://wa.me/595976129559"
-          class="btn-whatsapp-direct"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <i class="fa-brands fa-whatsapp"></i> Contactar vía WhatsApp Directo
-        </a>
       </div>
     </div>
 
-    <div class="map-section">
-      <i class="fa-solid fa-earth-americas"></i>
-      <h3>Zona de Cobertura</h3>
-      <p style="color: var(--text-muted); margin-top: 5px; font-size: 0.95rem;">
-        Ejecutamos obras, montajes mecánicos y de ingeniería en todo el territorio de la
-        República del Paraguay.
-      </p>
-    </div>
+    <section class="contact-coverage reveal">
+      <div class="contact-coverage-glow" aria-hidden="true"></div>
+      <div class="contact-coverage-content">
+        <span class="contact-coverage-icon">
+          <i class="fa-solid fa-earth-americas" aria-hidden="true"></i>
+        </span>
+        <div>
+          <h3>Zona de cobertura</h3>
+          <p>
+            Ejecutamos obras, montajes mecánicos y de ingeniería en todo el territorio de la
+            República del Paraguay.
+          </p>
+        </div>
+      </div>
+    </section>
   </div>
 </BaseLayout>

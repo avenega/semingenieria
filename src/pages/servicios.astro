@@ -2,11 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="SEM Ingeniería - Nuestros Servicios" active="servicios" showFooter={false}>
+<BaseLayout
+  title="SEM Ingeniería - Nuestros Servicios"
+  description="Ingeniería eléctrica, climatización, seguridad contra incendios, seguridad electrónica y montajes industriales."
+  active="servicios"
+>
   <div class="container">
     <h2>Nuestros Servicios</h2>
     <div class="services-grid">
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><i class="fa-solid fa-plug"></i></div>
         <h3>Ingeniería Eléctrica</h3>
         <ul>
@@ -14,7 +18,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <li>Grupos electrógenos</li>
         </ul>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><i class="fa-solid fa-snowflake"></i></div>
         <h3>Climatización</h3>
         <ul>
@@ -22,7 +26,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <li>Sistemas de climatización HVAC</li>
         </ul>
       </div>
-      <div class="service-card fire-special">
+      <div class="service-card fire-special reveal">
         <div class="service-icon"><i class="fa-solid fa-fire-extinguisher"></i></div>
         <h3>Seguridad Contra Incendios</h3>
         <ul>
@@ -30,7 +34,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <li>Detección de incendios</li>
         </ul>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><i class="fa-solid fa-video"></i></div>
         <h3>Seguridad Electrónica</h3>
         <ul>
@@ -39,7 +43,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <li>Sistemas de intrusión</li>
         </ul>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><i class="fa-solid fa-industry"></i></div>
         <h3>Servicios Industriales</h3>
         <ul>

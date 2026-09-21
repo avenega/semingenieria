@@ -1,3 +1,58 @@
-<div class="page-end">
-  <p>&copy; 2026 SEM Ingeniería. Todos los derechos reservados.</p>
-</div>
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="footer-logo">
+        <img src="/logo.png" alt="SEM Ingeniería" width="48" height="48" />
+        <span>
+          <span class="logo-text-sem">SEM</span>{' '}
+          <span class="logo-text-ing">INGENIERÍA</span>
+        </span>
+      </a>
+      <p>Soluciones integrales en energía, montaje industrial y prevención.</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Enlaces</h4>
+      <ul>
+        <li><a href="/">Sobre Nosotros</a></li>
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/curso">Obras en Curso</a></li>
+        <li><a href="/entregadas">Obras Entregadas</a></li>
+        <li><a href="/fotos">Foto de Obras</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <ul class="footer-contact">
+        <li>
+          <i class="fa-solid fa-phone" aria-hidden="true"></i>
+          <a href="tel:0976129559">0976 129 559</a>
+        </li>
+        <li>
+          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+          <a href="mailto:info@semingenieria.com.py">info@semingenieria.com.py</a>
+        </li>
+        <li>
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+          <a href="https://wa.me/595976129559" target="_blank" rel="noopener noreferrer"
+            >WhatsApp</a
+          >
+        </li>
+        <li>
+          <i class="fa-solid fa-clock" aria-hidden="true"></i>
+          <span>Lun–Vie 07:00–17:00 · Sáb 08:00–12:00</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {year} SEM Ingeniería. Todos los derechos reservados.</p>
+    <a href="/contacto" class="footer-cta-mini">Solicitar cotización</a>
+  </div>
+</footer>

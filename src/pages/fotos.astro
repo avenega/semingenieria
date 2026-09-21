@@ -5,35 +5,44 @@ const fotos = [
   {
     icon: 'fa-industry',
     desc: 'Montaje Eléctrico en Planta Copetrol',
+    tone: 'tone-a',
   },
   {
     icon: 'fa-bolt-lightning',
     desc: 'Instalación de Tablero de Media Tensión',
+    tone: 'tone-b',
   },
   {
     icon: 'fa-fire-extinguisher',
     desc: 'Red Hidráulica Contra Incendios',
+    tone: 'tone-c',
   },
   {
     icon: 'fa-snowflake',
     desc: 'Sistemas de climatización industrial',
+    tone: 'tone-d',
   },
 ];
 ---
 
-<BaseLayout title="SEM Ingeniería - Foto de Obras" active="fotos" showFooter={false}>
+<BaseLayout
+  title="SEM Ingeniería - Foto de Obras"
+  description="Registro visual de montajes industriales, tableros y sistemas contra incendio."
+  active="fotos"
+>
   <div class="container">
     <h2>Foto de Obras</h2>
     <p class="page-subtitle silver">
-      Registro visual de montajes industriales, tableros y sistemas contra incendio instalados
-      por nuestro equipo.
+      Registro visual de montajes industriales, tableros y sistemas contra incendio instalados por
+      nuestro equipo.
     </p>
 
     <div class="gallery-grid">
       {
         fotos.map((foto) => (
-          <div class="gallery-item">
+          <div class={`gallery-item reveal ${foto.tone}`}>
             <div class="photo-placeholder">
+              <div class="photo-glow" aria-hidden="true" />
               <i class={`fa-solid ${foto.icon} fa-3x`} />
               <span>Foto próximamente</span>
             </div>
