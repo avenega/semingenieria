@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="SEM Ingeniería - Nuestros Servicios" active="servicios" showFooter={false}>
+  <div class="container">
+    <h2>Nuestros Servicios</h2>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon"><i class="fa-solid fa-plug"></i></div>
+        <h3>Ingeniería Eléctrica</h3>
+        <ul>
+          <li>Media y baja tensión</li>
+          <li>Grupos electrógenos</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><i class="fa-solid fa-snowflake"></i></div>
+        <h3>Climatización HVAC</h3>
+        <ul>
+          <li>Aire acondicionado industrial y comercial</li>
+        </ul>
+      </div>
+      <div class="service-card fire-special">
+        <div class="service-icon"><i class="fa-solid fa-fire-extinguisher"></i></div>
+        <h3>Seguridad Contra Incendios</h3>
+        <ul>
+          <li>Sistemas hidráulicos y agentes</li>
+          <li>Detección de incendios</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><i class="fa-solid fa-video"></i></div>
+        <h3>Seguridad Electrónica</h3>
+        <ul>
+          <li>CCTV (Videovigilancia)</li>
+          <li>Control de accesos</li>
+          <li>Sistemas de intrusión</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <div class="service-icon"><i class="fa-solid fa-industry"></i></div>
+        <h3>Servicios Industriales</h3>
+        <ul>
+          <li>Cableado estructurado</li>
+          <li>Montajes industriales</li>
+          <li>Instalaciones metalmecánicas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

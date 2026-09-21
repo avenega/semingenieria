@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="SEM Ingeniería - Contacto" active="contacto" showFooter={false}>
+  <div class="container">
+    <h2>Contacto</h2>
+
+    <div class="contact-grid">
+      <div class="contact-info-panel">
+        <div class="contact-item">
+          <i class="fa-solid fa-phone-volume"></i>
+          <div>
+            <h4>Atención Telefónica</h4>
+            <p><a href="tel:0976129559">0976 129 559</a></p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <i class="fa-solid fa-envelope"></i>
+          <div>
+            <h4>Correo Electrónico</h4>
+            <p>
+              <a href="mailto:info@semingenieria.com.py">info@semingenieria.com.py</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <h4>Horario de Oficina</h4>
+            <p>
+              Lunes a Viernes: 07:00 a 17:00 hs.<br />
+              Sábados: 08:00 a 12:00 hs.
+            </p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <h4>Compromiso SEM</h4>
+            <p>
+              Garantía de calidad, responsabilidad técnica y seguridad en cada proyecto dentro
+              del territorio nacional.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-panel">
+        <form
+          action="#"
+          method="POST"
+          onsubmit="alert('Esta es una demostración visual. Para activar el formulario se requiere configuración de backend.'); return false;"
+        >
+          <div class="form-group">
+            <label for="name">Nombre / Empresa</label>
+            <input
+              type="text"
+              id="name"
+              class="form-control"
+              placeholder="Ej. Constructora S.A."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="email">Correo de Contacto</label>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              placeholder="ejemplo@correo.com"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="message">Detalle de su Proyecto o Solicitud</label>
+            <textarea
+              id="message"
+              rows="4"
+              class="form-control"
+              placeholder="Describa brevemente los requerimientos eléctricos, industriales o contra incendios..."
+              required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Enviar Mensaje por Web</button>
+        </form>
+
+        <a
+          href="https://wa.me/595976129559"
+          class="btn-whatsapp-direct"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i class="fa-brands fa-whatsapp"></i> Contactar vía WhatsApp Directo
+        </a>
+      </div>
+    </div>
+
+    <div class="map-section">
+      <i class="fa-solid fa-earth-americas"></i>
+      <h3>Zona de Cobertura</h3>
+      <p style="color: var(--text-muted); margin-top: 5px; font-size: 0.95rem;">
+        Ejecutamos obras, montajes mecánicos y de ingeniería en todo el territorio de la
+        República del Paraguay.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,24 @@
+{
+  "name": "semingenieria",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "astro": "^7.3.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.86.0"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}

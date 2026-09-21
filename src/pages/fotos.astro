@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const fotos = [
+  {
+    icon: 'fa-industry',
+    desc: 'Montaje Eléctrico en Planta Copetrol',
+  },
+  {
+    icon: 'fa-bolt-lightning',
+    desc: 'Instalación de Tablero de Media Tensión',
+  },
+  {
+    icon: 'fa-fire-extinguisher',
+    desc: 'Red Hidráulica Contra Incendios',
+  },
+  {
+    icon: 'fa-snowflake',
+    desc: 'Sistemas de Climatización HVAC Industrial',
+  },
+];
+---
+
+<BaseLayout title="SEM Ingeniería - Foto de Obras" active="fotos" showFooter={false}>
+  <div class="container">
+    <h2>Foto de Obras</h2>
+    <p class="page-subtitle silver">
+      Registro visual de montajes industriales, tableros y sistemas contra incendio instalados
+      por nuestro equipo.
+    </p>
+
+    <div class="gallery-grid">
+      {
+        fotos.map((foto) => (
+          <div class="gallery-item">
+            <div class="photo-placeholder">
+              <i class={`fa-solid ${foto.icon} fa-3x`} />
+              <span>[ Espacio para Foto ]</span>
+            </div>
+            <div class="photo-desc">{foto.desc}</div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

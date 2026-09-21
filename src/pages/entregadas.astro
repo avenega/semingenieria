@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const proyectos = [
+  { icon: 'fa-wheat-straw', title: 'Pioneros del Chaco S.A.', sector: 'Sector Agroindustrial' },
+  { icon: 'fa-ship', title: 'Louis Dreyfus Company (LDC)', sector: 'Operaciones Logísticas' },
+  { icon: 'fa-mountain-rocks', title: 'LHC Mining', sector: 'Infraestructura Minera' },
+  { icon: 'fa-gas-pump', title: 'Planta Copetrol - San Antonio', sector: 'Sector Combustibles' },
+  { icon: 'fa-building-shield', title: 'Planta Industrial Petropar', sector: 'Sector Combustibles' },
+  { icon: 'fa-box-open', title: 'Grupo Cavallaro', sector: 'Consumo Masivo' },
+  { icon: 'fa-cart-shopping', title: 'Shopping Mariscal', sector: 'Sector Comercial & Retail' },
+  { icon: 'fa-shirt', title: 'Boarding Group', sector: 'Comercial / Bespoke' },
+  { icon: 'fa-glasses', title: 'Óptica Uno', sector: 'Infraestructura Comercial' },
+];
+---
+
+<BaseLayout title="SEM Ingeniería - Obras Entregadas" active="entregadas" showFooter={false}>
+  <div class="container">
+    <h2>Obras Entregadas</h2>
+    <div class="projects-grid entregadas">
+      {
+        proyectos.map((p) => (
+          <div class="project-card">
+            <div class="project-img-placeholder">
+              <i class={`fa-solid ${p.icon} fa-2x`} />
+            </div>
+            <div class="project-info">
+              <h3>{p.title}</h3>
+              <p>{p.sector}</p>
+              <span class="badge success">Éxito</span>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

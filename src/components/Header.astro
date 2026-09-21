@@ -1,0 +1,37 @@
+---
+interface Props {
+  active?: string;
+}
+
+const { active = '' } = Astro.props;
+
+const links = [
+  { href: '/', id: 'index', label: 'Sobre Nosotros' },
+  { href: '/servicios', id: 'servicios', label: 'Nuestros Servicios' },
+  { href: '/curso', id: 'curso', label: 'Obras en Curso' },
+  { href: '/entregadas', id: 'entregadas', label: 'Obras Entregadas' },
+  { href: '/fotos', id: 'fotos', label: 'Foto de Obras' },
+  { href: '/contacto', id: 'contacto', label: 'Contacto' },
+];
+---
+
+<header>
+  <div class="nav-container">
+    <a href="/" class="logo-nav">
+      <img src="/logo.png" alt="SEM Ingeniería Logo" />
+      <span style="color: #737373;">SEM</span>
+      <span style="color: #ffcc29;">INGENIERÍA</span>
+    </a>
+    <ul class="nav-menu">
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href} class={active === link.id ? 'active' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</header>
