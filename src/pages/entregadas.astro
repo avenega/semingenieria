@@ -2,15 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const proyectos = [
-  { icon: 'fa-wheat-straw', title: 'Pioneros del Chaco S.A.', sector: 'Sector Agroindustrial' },
-  { icon: 'fa-ship', title: 'Louis Dreyfus Company (LDC)', sector: 'Operaciones Logísticas' },
-  { icon: 'fa-mountain-rocks', title: 'LHC Mining', sector: 'Infraestructura Minera' },
-  { icon: 'fa-gas-pump', title: 'Planta Copetrol - San Antonio', sector: 'Sector Combustibles' },
-  { icon: 'fa-building-shield', title: 'Planta Industrial Petropar', sector: 'Sector Combustibles' },
-  { icon: 'fa-box-open', title: 'Grupo Cavallaro', sector: 'Consumo Masivo' },
-  { icon: 'fa-cart-shopping', title: 'Shopping Mariscal', sector: 'Sector Comercial & Retail' },
-  { icon: 'fa-shirt', title: 'Boarding Group', sector: 'Comercial / Bespoke' },
-  { icon: 'fa-glasses', title: 'Óptica Uno', sector: 'Infraestructura Comercial' },
+  { icon: 'fa-wheat-straw', title: 'Pioneros del Chaco S.A.', sector: 'Sector agroindustrial' },
+  { icon: 'fa-ship', title: 'Louis Dreyfus Company (LDC)', sector: 'Operaciones logísticas' },
+  { icon: 'fa-mountain-rocks', title: 'LHC Mining', sector: 'Infraestructura minera' },
+  { icon: 'fa-gas-pump', title: 'Planta Copetrol - San Antonio', sector: 'Sector combustibles' },
+  { icon: 'fa-building-shield', title: 'Planta Industrial Petropar', sector: 'Sector combustibles' },
+  { icon: 'fa-box-open', title: 'Grupo Cavallaro', sector: 'Consumo masivo' },
+  { icon: 'fa-cart-shopping', title: 'Shopping Mariscal', sector: 'Sector comercial y retail' },
+  { icon: 'fa-shirt', title: 'Boarding Group', sector: 'Comercial / a medida' },
+  { icon: 'fa-glasses', title: 'Óptica Uno', sector: 'Infraestructura comercial' },
 ];
 ---
 
@@ -27,7 +27,7 @@ const proyectos = [
             <div class="project-info">
               <h3>{p.title}</h3>
               <p>{p.sector}</p>
-              <span class="badge success">Éxito</span>
+              <span class="badge success">Entregada</span>
             </div>
           </div>
         ))

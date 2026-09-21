@@ -134,14 +134,56 @@ h2::after {
 .about-text {
   text-align: center;
   max-width: 900px;
-  margin: 0 auto 50px;
+  margin: 0 auto 24px;
   color: var(--text-muted);
   font-size: 1.1rem;
 }
 
+.about-text strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.about-text-secondary {
+  margin-bottom: 50px;
+  font-size: 1rem;
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.pillar-card {
+  background-color: var(--bg-card);
+  padding: 28px 24px;
+  border-radius: 8px;
+  border: 1px solid #252b36;
+  text-align: left;
+}
+
+.pillar-card i {
+  font-size: 1.8rem;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+
+.pillar-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+  color: var(--white);
+}
+
+.pillar-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
 .mv-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
 }
 
@@ -157,6 +199,11 @@ h2::after {
   font-size: 2.5rem;
   color: var(--gold);
   margin-bottom: 15px;
+}
+
+.mv-card p {
+  color: var(--text-muted);
+  margin-top: 10px;
 }
 
 .page-end {

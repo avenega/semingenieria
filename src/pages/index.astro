@@ -1,5 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const pilares = [
+  {
+    icon: 'fa-bolt',
+    title: 'Energía y potencia',
+    text: 'Montajes eléctricos de media y baja tensión, tableros y grupos electrógenos para instalaciones confiables.',
+  },
+  {
+    icon: 'fa-fire-extinguisher',
+    title: 'Prevención y seguridad',
+    text: 'Sistemas de detección y combate contra incendios, CCTV, control de accesos y protección electrónica.',
+  },
+  {
+    icon: 'fa-gears',
+    title: 'Montaje industrial',
+    text: 'Instalaciones electromecánicas, metalmecánica y climatización para plantas, comercios e industrias.',
+  },
+];
 ---
 
 <BaseLayout title="SEM Ingeniería - Soluciones Integrales" active="index">
@@ -7,7 +25,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container">
       <img src="/logo.png" alt="SEM Ingeniería" class="hero-logo" />
       <h1>
-        <span style="color: #737373;">SEM</span>
+        <span style="color: #737373;">SEM</span>{' '}
         <span style="color: #ffcc29;">INGENIERÍA</span>
       </h1>
       <p>Soluciones Integrales con Energía y Prevención</p>
@@ -17,26 +35,51 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="container">
     <h2>Sobre Nosotros</h2>
     <p class="about-text">
-      Somos una empresa que brinda soluciones en ingeniería eléctrica, electrónica y
-      electromecánica. Especialistas en montajes industriales, installations técnicas y
-      sistemas de protección y combate contra incendios para proyectos residenciales,
-      industriales y comerciales.
+      En <strong>SEM Ingeniería</strong> ofrecemos soluciones integrales en ingeniería eléctrica,
+      electrónica y electromecánica en todo el Paraguay. Acompañamos proyectos residenciales,
+      comerciales e industriales con montajes técnicos de calidad, instalaciones especializadas y
+      sistemas de protección y combate contra incendios.
     </p>
+    <p class="about-text about-text-secondary">
+      Trabajamos con responsabilidad técnica, plazos claros y un enfoque en la seguridad de las
+      personas y de las instalaciones, desde el diseño hasta la puesta en marcha.
+    </p>
+
+    <div class="pillars-grid">
+      {
+        pilares.map((p) => (
+          <div class="pillar-card">
+            <i class={`fa-solid ${p.icon}`} />
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </div>
+        ))
+      }
+    </div>
+
     <div class="mv-grid">
       <div class="mv-card">
         <i class="fa-solid fa-eye"></i>
         <h3>Visión</h3>
-        <p style="color: var(--text-muted); margin-top: 10px;">
-          Ser una empresa referente en los rubros en la que nos desempeñamos, reconocida por
-          la responsabilidad y excelencia en cada proyecto.
+        <p>
+          Ser una empresa referente en los rubros en los que nos desempeñamos, reconocida por la
+          responsabilidad y la excelencia en cada proyecto.
         </p>
       </div>
       <div class="mv-card">
         <i class="fa-solid fa-shield-halved"></i>
         <h3>Misión</h3>
-        <p style="color: var(--text-muted); margin-top: 10px;">
-          Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia
-          y satisfacción a nuestros clientes.
+        <p>
+          Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia y
+          satisfacción a nuestros clientes.
+        </p>
+      </div>
+      <div class="mv-card">
+        <i class="fa-solid fa-handshake"></i>
+        <h3>Compromiso</h3>
+        <p>
+          Ejecutar cada obra con ética profesional, cumplimiento normativo y atención cercana, en
+          todo el territorio nacional.
         </p>
       </div>
     </div>
