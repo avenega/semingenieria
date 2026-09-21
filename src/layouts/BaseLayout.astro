@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SiteBoot from '../components/SiteBoot.astro';
+import CmsHydrate from '../components/CmsHydrate.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -66,6 +67,7 @@ const ogImage = new URL('/logo.png', siteUrl).href;
     <Header active={active} />
     <slot />
     <Footer />
+    <CmsHydrate />
 
     <script>
       const reveals = document.querySelectorAll('.reveal');

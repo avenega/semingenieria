@@ -7,15 +7,25 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "dev:worker": "wrangler dev",
+    "dev:admin": "npm run dev --prefix admin",
+    "build:site": "astro build",
+    "build:admin": "npm run build --prefix admin",
+    "build": "npm run build:site && npm run build:admin",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "npm run build && wrangler deploy"
+    "db:migrate:local": "wrangler d1 migrations apply semingenieria-cms --local",
+    "db:migrate": "wrangler d1 migrations apply semingenieria-cms --remote",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "astro": "^7.3.3"
+    "astro": "^7.3.3",
+    "hono": "^4.11.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260317.1",
+    "typescript": "^5.9.3",
     "wrangler": "^4.86.0"
   },
   "allowScripts": {

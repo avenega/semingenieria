@@ -28,7 +28,7 @@ const pilares = [
         <span class="logo-text-sem">SEM</span>{' '}
         <span class="logo-text-ing">INGENIERÍA</span>
       </h1>
-      <p>Soluciones Integrales con Energía y Prevención</p>
+      <p data-cms-text="hero_tagline">Soluciones Integrales con Energía y Prevención</p>
       <div class="hero-cta">
         <a href="/servicios" class="btn btn-primary">Ver servicios</a>
         <a href="/contacto" class="btn btn-outline">Contactar</a>
@@ -38,24 +38,24 @@ const pilares = [
 
   <div class="container">
     <h2>Sobre Nosotros</h2>
-    <p class="about-text">
+    <p class="about-text" data-cms-text="about_p1">
       En <strong>SEM Ingeniería</strong> ofrecemos soluciones integrales en ingeniería eléctrica,
       electrónica y electromecánica en todo el Paraguay. Acompañamos proyectos residenciales,
       comerciales e industriales con montajes técnicos de calidad, instalaciones especializadas y
       sistemas de protección y combate contra incendios.
     </p>
-    <p class="about-text about-text-secondary">
+    <p class="about-text about-text-secondary" data-cms-text="about_p2">
       Trabajamos con responsabilidad técnica, plazos claros y un enfoque en la seguridad de las
       personas y de las instalaciones, desde el diseño hasta la puesta en marcha.
     </p>
 
     <div class="pillars-grid">
       {
-        pilares.map((p) => (
+        pilares.map((p, i) => (
           <div class="pillar-card reveal">
-            <i class={`fa-solid ${p.icon}`} />
-            <h3>{p.title}</h3>
-            <p>{p.text}</p>
+            <i class={`fa-solid ${p.icon}`} data-cms-pillar-icon={i + 1} />
+            <h3 data-cms-text={`pillar_${i + 1}_title`}>{p.title}</h3>
+            <p data-cms-text={`pillar_${i + 1}_text`}>{p.text}</p>
           </div>
         ))
       }
@@ -65,7 +65,7 @@ const pilares = [
       <div class="mv-card reveal">
         <i class="fa-solid fa-eye"></i>
         <h3>Visión</h3>
-        <p>
+        <p data-cms-text="vision">
           Ser una empresa referente en los rubros en los que nos desempeñamos, reconocida por la
           responsabilidad y la excelencia en cada proyecto.
         </p>
@@ -73,7 +73,7 @@ const pilares = [
       <div class="mv-card reveal">
         <i class="fa-solid fa-shield-halved"></i>
         <h3>Misión</h3>
-        <p>
+        <p data-cms-text="mission">
           Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia y
           satisfacción a nuestros clientes.
         </p>
@@ -81,7 +81,7 @@ const pilares = [
       <div class="mv-card reveal">
         <i class="fa-solid fa-handshake"></i>
         <h3>Compromiso</h3>
-        <p>
+        <p data-cms-text="commitment">
           Ejecutar cada obra con ética profesional, cumplimiento normativo y atención cercana, en
           todo el territorio nacional.
         </p>

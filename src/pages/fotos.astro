@@ -1,28 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-const fotos = [
-  {
-    icon: 'fa-industry',
-    desc: 'Montaje Eléctrico en Planta Copetrol',
-    tone: 'tone-a',
-  },
-  {
-    icon: 'fa-bolt-lightning',
-    desc: 'Instalación de Tablero de Media Tensión',
-    tone: 'tone-b',
-  },
-  {
-    icon: 'fa-fire-extinguisher',
-    desc: 'Red Hidráulica Contra Incendios',
-    tone: 'tone-c',
-  },
-  {
-    icon: 'fa-snowflake',
-    desc: 'Sistemas de climatización industrial',
-    tone: 'tone-d',
-  },
-];
 ---
 
 <BaseLayout
@@ -32,24 +9,16 @@ const fotos = [
 >
   <div class="container">
     <h2>Foto de Obras</h2>
-    <p class="page-subtitle silver">
+    <p class="page-subtitle silver" data-cms-text="fotos_intro">
       Registro visual de montajes industriales, tableros y sistemas contra incendio instalados por
       nuestro equipo.
     </p>
 
-    <div class="gallery-grid">
-      {
-        fotos.map((foto) => (
-          <div class={`gallery-item reveal ${foto.tone}`}>
-            <div class="photo-placeholder">
-              <div class="photo-glow" aria-hidden="true" />
-              <i class={`fa-solid ${foto.icon} fa-3x`} />
-              <span>Foto próximamente</span>
-            </div>
-            <div class="photo-desc">{foto.desc}</div>
-          </div>
-        ))
-      }
+    <div class="gallery-grid cms-pending" data-cms-gallery aria-busy="true">
+      <div class="cms-skeleton" aria-hidden="true"></div>
+      <div class="cms-skeleton" aria-hidden="true"></div>
+      <div class="cms-skeleton" aria-hidden="true"></div>
+      <div class="cms-skeleton" aria-hidden="true"></div>
     </div>
   </div>
 </BaseLayout>

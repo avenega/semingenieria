@@ -1,0 +1,171 @@
+---
+/** Hidrata el sitio público desde /api/public/site (CMS Cloudflare). */
+---
+
+<script>
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
+  }
+
+  function escapeAttr(str) {
+    return escapeHtml(str).replaceAll("'", '&#39;');
+  }
+
+  function preloadImage(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  }
+
+  function markReady(el) {
+    if (!el) return;
+    el.classList.remove('cms-pending');
+    el.classList.add('cms-ready');
+    el.setAttribute('aria-busy', 'false');
+  }
+
+  async function hydrateCms() {
+    try {
+      const res = await fetch('/api/public/site', { headers: { Accept: 'application/json' } });
+      if (!res.ok) {
+        document.querySelectorAll('.cms-pending').forEach(markReady);
+        return;
+      }
+      const data = await res.json();
+      const settings = data.settings || {};
+
+      document.querySelectorAll('[data-cms-text]').forEach((el) => {
+        const key = el.getAttribute('data-cms-text');
+        if (key && settings[key] != null) el.textContent = settings[key];
+      });
+
+      document.querySelectorAll('[data-cms-html]').forEach((el) => {
+        const key = el.getAttribute('data-cms-html');
+        if (key && settings[key] != null) el.textContent = settings[key];
+      });
+
+      const servicesHost = document.querySelector('[data-cms-services]');
+      if (servicesHost && Array.isArray(data.services)) {
+        servicesHost.innerHTML = data.services
+          .map(
+            (s) => `
+          <div class="service-card reveal is-visible${s.highlight ? ' fire-special' : ''}">
+            <div class="service-icon"><i class="fa-solid ${s.icon}"></i></div>
+            <h3>${escapeHtml(s.title)}</h3>
+            <ul>${(s.items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+          </div>`,
+          )
+          .join('');
+        markReady(servicesHost);
+      }
+
+      const cursoHost = document.querySelector('[data-cms-curso]');
+      if (cursoHost && data.projects?.curso) {
+        const cursoImgs = data.projects.curso.filter((p) => p.image_url);
+        await Promise.all(cursoImgs.map((p) => preloadImage(p.image_url)));
+        cursoHost.innerHTML = data.projects.curso
+          .map(
+            (p) => `
+          <div class="project-card reveal is-visible">
+            <div class="project-img-placeholder${p.image_url ? ' has-photo' : ''}">
+              ${
+                p.image_url
+                  ? `<img class="project-photo" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.title)}" loading="eager" decoding="async" />`
+                  : `<i class="fa-solid ${p.icon} fa-2x"></i>`
+              }
+            </div>
+            <div class="project-info">
+              <h3>${escapeHtml(p.title)}</h3>
+              <p>${escapeHtml(p.subtitle || '')}</p>
+              <span class="badge">${escapeHtml(p.badge || 'En Ejecución')}</span>
+            </div>
+          </div>`,
+          )
+          .join('');
+        markReady(cursoHost);
+      }
+
+      const entHost = document.querySelector('[data-cms-entregadas]');
+      if (entHost && data.projects?.entregadas) {
+        const entImgs = data.projects.entregadas.filter((p) => p.image_url);
+        await Promise.all(entImgs.map((p) => preloadImage(p.image_url)));
+        entHost.innerHTML = data.projects.entregadas
+          .map(
+            (p) => `
+          <div class="project-card reveal is-visible">
+            <div class="project-img-placeholder${p.image_url ? ' has-photo' : ''}">
+              ${
+                p.image_url
+                  ? `<img class="project-photo" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.title)}" loading="eager" decoding="async" />`
+                  : `<i class="fa-solid ${p.icon} fa-2x"></i>`
+              }
+            </div>
+            <div class="project-info">
+              <h3>${escapeHtml(p.title)}</h3>
+              <p>${escapeHtml(p.subtitle || '')}</p>
+              <span class="badge success">${escapeHtml(p.badge || 'Entregada')}</span>
+            </div>
+          </div>`,
+          )
+          .join('');
+        markReady(entHost);
+      }
+
+      // Galería: precargar imágenes reales antes de mostrar (evita pestañeo)
+      const galHost = document.querySelector('[data-cms-gallery]');
+      if (galHost && Array.isArray(data.gallery)) {
+        const withImages = data.gallery.filter((g) => g.image_url);
+        await Promise.all(withImages.map((g) => preloadImage(g.image_url)));
+
+        galHost.innerHTML = data.gallery
+          .map((g) => {
+            const media = g.image_url
+              ? `<img class="gallery-photo" src="${escapeAttr(g.image_url)}" alt="${escapeAttr(g.title)}" loading="eager" decoding="async" />`
+              : `<div class="photo-glow" aria-hidden="true"></div><i class="fa-solid ${g.icon} fa-3x"></i><span>Foto próximamente</span>`;
+            return `
+          <div class="gallery-item reveal is-visible">
+            <div class="photo-placeholder${g.image_url ? ' has-photo' : ''}">
+              ${media}
+            </div>
+            <div class="photo-desc">${escapeHtml(g.title)}</div>
+          </div>`;
+          })
+          .join('');
+        markReady(galHost);
+      }
+
+      const phone = settings.contact_phone;
+      const email = settings.contact_email;
+      const wa = settings.contact_whatsapp;
+      if (phone) {
+        document.querySelectorAll('[data-cms-phone]').forEach((el) => {
+          el.textContent = phone;
+          if (el.tagName === 'A') el.setAttribute('href', `tel:${phone.replace(/\s+/g, '')}`);
+        });
+      }
+      if (email) {
+        document.querySelectorAll('[data-cms-email]').forEach((el) => {
+          el.textContent = email;
+          if (el.tagName === 'A') el.setAttribute('href', `mailto:${email}`);
+        });
+      }
+      if (wa) {
+        document.querySelectorAll('[data-cms-wa]').forEach((el) => {
+          if (el.tagName === 'A') el.setAttribute('href', `https://wa.me/${wa}`);
+        });
+      }
+    } catch (e) {
+      console.warn('CMS hydrate skipped', e);
+      document.querySelectorAll('.cms-pending').forEach(markReady);
+    }
+  }
+
+  hydrateCms();
+</script>

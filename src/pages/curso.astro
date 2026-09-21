@@ -9,32 +9,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
   <div class="container">
     <h2 class="with-subtitle">Obras en Curso</h2>
-    <p class="page-subtitle">
+    <p class="page-subtitle" data-cms-text="curso_intro">
       Frentes de trabajo activos e instalaciones en desarrollo a nivel nacional.
     </p>
 
-    <div class="projects-grid">
-      <div class="project-card reveal">
-        <div class="project-img-placeholder">
-          <i class="fa-solid fa-helmet-safety fa-2x"></i>
-        </div>
-        <div class="project-info">
-          <h3>Montaje Electromecánico Industrial</h3>
-          <p>Fase: Tendido y Canalización de Potencia</p>
-          <span class="badge">En Ejecución</span>
-        </div>
-      </div>
-
-      <div class="project-card reveal">
-        <div class="project-img-placeholder">
-          <i class="fa-solid fa-fire-extinguisher fa-2x"></i>
-        </div>
-        <div class="project-info">
-          <h3>Sistema de Detección y Combate Contra Incendios</h3>
-          <p>Fase: Montaje de Red de Hidrantes</p>
-          <span class="badge">En Ejecución</span>
-        </div>
-      </div>
+    <div class="projects-grid cms-pending" data-cms-curso aria-busy="true">
+      <div class="cms-skeleton" aria-hidden="true"></div>
+      <div class="cms-skeleton" aria-hidden="true"></div>
     </div>
   </div>
 </BaseLayout>

@@ -1,11 +1,35 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "semingenieria",
+  "main": "worker/src/index.ts",
   "compatibility_date": "2026-09-21",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
   },
   "observability": {
     "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "semingenieria-cms",
+      "database_id": "715e1d92-3773-4ad0-b5dd-f10b7f55aa0f",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "semingenieria-media"
+    }
+  ],
+  // Turnstile test keys (siempre pasan). Reemplazá en producción.
+  // https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+  "vars": {
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
   }
 }

@@ -72,7 +72,13 @@ const canales = [
               </span>
               <span class="contact-channel-body">
                 <span class="contact-channel-label">{c.label}</span>
-                <span class="contact-channel-value">{c.value}</span>
+                <span
+                  class="contact-channel-value"
+                  data-cms-phone={c.label === 'Teléfono' ? true : undefined}
+                  data-cms-email={c.label === 'Correo' ? true : undefined}
+                >
+                  {c.value}
+                </span>
                 <span class="contact-channel-hint">{c.hint}</span>
               </span>
             </Tag>
@@ -110,6 +116,7 @@ const canales = [
           class="contact-wa"
           target="_blank"
           rel="noopener noreferrer"
+          data-cms-wa
         >
           <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
           Escribinos por WhatsApp
@@ -121,21 +128,18 @@ const canales = [
           <h2>Enviar consulta</h2>
           <p>Completá los datos y te contactamos a la brevedad.</p>
         </div>
-        <form
-          class="contact-form"
-          action="#"
-          method="POST"
-          onsubmit="alert('Esta es una demostración visual. Para activar el formulario se requiere configuración del servidor.'); return false;"
-        >
+        <form class="contact-form" id="contact-form" novalidate>
           <div class="form-row">
             <div class="form-group">
               <label for="name">Nombre / Empresa</label>
               <input
                 type="text"
                 id="name"
+                name="name"
                 class="form-control"
                 placeholder="Ej. Constructora S.A."
                 required
+                autocomplete="organization"
               />
             </div>
             <div class="form-group">
@@ -143,8 +147,10 @@ const canales = [
               <input
                 type="tel"
                 id="phone"
+                name="phone"
                 class="form-control"
                 placeholder="Ej. 0976 000 000"
+                autocomplete="tel"
               />
             </div>
           </div>
@@ -153,21 +159,34 @@ const canales = [
             <input
               type="email"
               id="email"
+              name="email"
               class="form-control"
               placeholder="ejemplo@correo.com"
               required
+              autocomplete="email"
             />
           </div>
           <div class="form-group">
             <label for="message">Detalle del proyecto o solicitud</label>
             <textarea
               id="message"
+              name="message"
               rows="5"
               class="form-control"
               placeholder="Describí brevemente los requerimientos eléctricos, industriales o contra incendios..."
-              required></textarea>
+              required
+              minlength="10"></textarea>
           </div>
-          <button type="submit" class="btn-submit">
+          <!-- Honeypot anti-bot -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Sitio web</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <div id="turnstile-slot" class="turnstile-slot"></div>
+          </div>
+          <p id="contact-form-status" class="contact-form-status" role="status" hidden></p>
+          <button type="submit" class="btn-submit" id="contact-submit">
             Enviar mensaje
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </button>
@@ -183,7 +202,7 @@ const canales = [
         </span>
         <div>
           <h3>Zona de cobertura</h3>
-          <p>
+          <p data-cms-text="coverage_text">
             Ejecutamos obras, montajes mecánicos y de ingeniería en todo el territorio de la
             República del Paraguay.
           </p>
@@ -191,4 +210,142 @@ const canales = [
       </div>
     </section>
   </div>
+
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script is:inline>
+    (function () {
+      const form = document.getElementById('contact-form');
+      if (!form) return;
+
+      const statusEl = document.getElementById('contact-form-status');
+      const submitBtn = document.getElementById('contact-submit');
+      const slot = document.getElementById('turnstile-slot');
+      let widgetId = null;
+      let siteKey = '';
+
+      function setStatus(type, text) {
+        if (!statusEl) return;
+        statusEl.hidden = !text;
+        statusEl.textContent = text || '';
+        statusEl.className = 'contact-form-status' + (type ? ' is-' + type : '');
+      }
+
+      function resetTurnstile() {
+        if (widgetId != null && window.turnstile) {
+          window.turnstile.reset(widgetId);
+        }
+      }
+
+      function renderTurnstile() {
+        if (!slot || !siteKey || !window.turnstile) return;
+        if (widgetId != null) return;
+        widgetId = window.turnstile.render(slot, {
+          sitekey: siteKey,
+          theme: 'dark',
+          language: 'es',
+        });
+      }
+
+      function waitTurnstile(cb) {
+        if (window.turnstile) {
+          cb();
+          return;
+        }
+        let tries = 0;
+        const t = setInterval(function () {
+          tries += 1;
+          if (window.turnstile || tries > 40) {
+            clearInterval(t);
+            if (window.turnstile) cb();
+          }
+        }, 150);
+      }
+
+      fetch('/api/public/config')
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (cfg) {
+          siteKey = cfg.turnstileSiteKey || '';
+          if (!siteKey) {
+            setStatus('error', 'Captcha no disponible. Intentá más tarde.');
+            return;
+          }
+          waitTurnstile(renderTurnstile);
+        })
+        .catch(function () {
+          setStatus('error', 'No se pudo cargar la configuración del formulario.');
+        });
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        setStatus('', '');
+
+        const name = (form.name.value || '').trim();
+        const email = (form.email.value || '').trim();
+        const phone = (form.phone.value || '').trim();
+        const message = (form.message.value || '').trim();
+        const website = (form.website && form.website.value) || '';
+
+        if (name.length < 2) {
+          setStatus('error', 'Ingresá tu nombre o empresa');
+          return;
+        }
+        if (!email) {
+          setStatus('error', 'Ingresá un correo válido');
+          return;
+        }
+        if (message.length < 10) {
+          setStatus('error', 'El mensaje debe tener al menos 10 caracteres');
+          return;
+        }
+
+        let token = '';
+        if (window.turnstile && widgetId != null) {
+          token = window.turnstile.getResponse(widgetId) || '';
+        }
+        if (!token) {
+          setStatus('error', 'Completá el captcha');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.classList.add('is-loading');
+        setStatus('pending', 'Enviando mensaje…');
+
+        try {
+          const res = await fetch('/api/public/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: name,
+              email: email,
+              phone: phone,
+              message: message,
+              website: website,
+              turnstileToken: token,
+            }),
+          });
+          const data = await res.json().catch(function () {
+            return {};
+          });
+          if (!res.ok) {
+            throw new Error(data.error || 'No se pudo enviar el mensaje');
+          }
+          form.reset();
+          resetTurnstile();
+          setStatus(
+            'ok',
+            '¡Mensaje enviado! Te contactaremos a la brevedad.',
+          );
+        } catch (err) {
+          resetTurnstile();
+          setStatus('error', err.message || 'Error al enviar');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('is-loading');
+        }
+      });
+    })();
+  </script>
 </BaseLayout>
