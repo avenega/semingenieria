@@ -1,0 +1,193 @@
+---
+/**
+ * Splash inicial estilo innit.com.py:
+ * logo en gris + revelado en color (--boot-fill) y cierre suave.
+ */
+---
+
+<div id="site-boot" class="site-boot" aria-busy="true" aria-live="polite" aria-label="Cargando SEM Ingeniería">
+  <div class="site-boot-mark has-logo is-isologo" data-site-boot-mark>
+    <img class="site-boot-img is-gray" src="/logo.png" alt="SEM Ingeniería" width="500" height="500" />
+    <img class="site-boot-img is-color" src="/logo.png" alt="" width="500" height="500" aria-hidden="true" />
+  </div>
+  <p class="site-boot-hint">SEM Ingeniería</p>
+</div>
+
+<script>
+  function initSiteBoot() {
+    const root = document.documentElement;
+    const overlay = document.getElementById('site-boot');
+    if (!(overlay instanceof HTMLElement)) {
+      root.classList.remove('site-booting');
+      return;
+    }
+
+    try {
+      if (sessionStorage.getItem('sem-boot-done') === '1') {
+        root.classList.remove('site-booting');
+        overlay.remove();
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+
+    if (overlay.getAttribute('data-boot-wired') === '1') return;
+    overlay.setAttribute('data-boot-wired', '1');
+    root.classList.add('site-booting');
+
+    const mark = overlay.querySelector('[data-site-boot-mark]');
+    const grayImg = overlay.querySelector('.site-boot-img.is-gray');
+    const colorImg = overlay.querySelector('.site-boot-img.is-color');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const BOOT_MIN_VISIBLE_MS = 1100;
+    const BOOT_FILL_MS = 1400;
+    const BOOT_FILL_HOLD_MS = 400;
+    const BOOT_LERP = 0.12;
+
+    const started = performance.now();
+    let target = 0;
+    let current = 0;
+    let dismissed = false;
+    let raf = 0;
+    let revealStart = null;
+    let pointerBoost = 0;
+
+    function easeSmoothstep(value) {
+      const u = Math.max(0, Math.min(1, value));
+      return u * u * (3 - 2 * u);
+    }
+
+    function markRevealReady() {
+      if (revealStart != null) return;
+      revealStart = performance.now();
+      if (mark instanceof HTMLElement) mark.classList.add('is-ready');
+    }
+
+    function timelineFill(now) {
+      if (revealStart == null) return Math.min(0.16, ((now - started) / 700) * 0.16);
+      const progress = Math.min(1, (now - revealStart) / BOOT_FILL_MS);
+      return 0.08 + easeSmoothstep(progress) * 0.92;
+    }
+
+    function setFill(value) {
+      if (mark instanceof HTMLElement) {
+        mark.style.setProperty('--boot-fill', `${Math.max(0, Math.min(1, value)) * 100}%`);
+      }
+    }
+
+    function cleanup() {
+      window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('touchmove', onPointer);
+    }
+
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+      cleanup();
+      if (raf) cancelAnimationFrame(raf);
+      setFill(1);
+      overlay.classList.add('is-done');
+      overlay.setAttribute('aria-busy', 'false');
+      root.classList.remove('site-booting');
+      try {
+        sessionStorage.setItem('sem-boot-done', '1');
+      } catch {
+        /* ignore */
+      }
+      window.setTimeout(() => overlay.remove(), 450);
+    }
+
+    function scheduleDismiss() {
+      window.setTimeout(dismiss, reduceMotion ? 0 : BOOT_FILL_HOLD_MS);
+    }
+
+    function tick() {
+      const now = performance.now();
+      const revealElapsed = revealStart != null ? now - revealStart : 0;
+
+      if (reduceMotion) {
+        target = revealStart != null && revealElapsed >= BOOT_MIN_VISIBLE_MS ? 1 : 0.12;
+        current = target;
+      } else {
+        target = Math.min(1, timelineFill(now) + pointerBoost * 0.22);
+        current += (target - current) * BOOT_LERP;
+        pointerBoost *= 0.92;
+      }
+
+      const revealProgress =
+        revealStart != null ? Math.min(1, revealElapsed / BOOT_FILL_MS) : 0;
+
+      if (
+        revealStart != null &&
+        revealProgress >= 1 &&
+        (current > 0.985 || target >= 0.999) &&
+        revealElapsed >= BOOT_MIN_VISIBLE_MS
+      ) {
+        current = 1;
+        setFill(1);
+        scheduleDismiss();
+        return;
+      }
+
+      setFill(current);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function wireBootImg(img, onLoad, onError) {
+      if (!(img instanceof HTMLImageElement)) return;
+      if (img.complete && img.naturalWidth) {
+        onLoad();
+        return;
+      }
+      img.addEventListener('load', onLoad, { once: true });
+      if (onError) img.addEventListener('error', onError, { once: true });
+    }
+
+    function onPointer(event) {
+      if (reduceMotion || !(mark instanceof HTMLElement)) return;
+      const rect = mark.getBoundingClientRect();
+      if (!rect.height) return;
+      const y = 'clientY' in event ? event.clientY : event.touches?.[0]?.clientY;
+      if (typeof y !== 'number') return;
+      const midY = rect.top + rect.height / 2;
+      const dist = Math.abs(y - midY) / (window.innerHeight * 0.5);
+      pointerBoost = Math.max(pointerBoost, Math.max(0, 1 - dist));
+    }
+
+    wireBootImg(grayImg, () => markRevealReady(), () => markRevealReady());
+    wireBootImg(colorImg, () => markRevealReady());
+    window.setTimeout(() => markRevealReady(), 800);
+
+    if (!reduceMotion) {
+      window.addEventListener('pointermove', onPointer, { passive: true });
+      window.addEventListener('touchmove', onPointer, { passive: true });
+    }
+
+    overlay.addEventListener(
+      'click',
+      () => {
+        setFill(1);
+        dismiss();
+      },
+      { once: true },
+    );
+
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setFill(1);
+          dismiss();
+        }
+      },
+      { once: true },
+    );
+
+    raf = requestAnimationFrame(tick);
+  }
+
+  initSiteBoot();
+</script>

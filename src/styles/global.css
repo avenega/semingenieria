@@ -14,6 +14,98 @@
   box-sizing: border-box;
 }
 
+html.site-booting {
+  overflow: hidden;
+}
+
+html:not(.site-booting) #site-boot {
+  display: none;
+}
+
+/* Loader inicial (estilo innit: revelado de color) */
+.site-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  background: #0d1016;
+  cursor: pointer;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+
+.site-boot.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.site-boot-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 160px;
+  height: 160px;
+  max-width: min(160px, 42vw);
+  --boot-fill: 0%;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  filter: drop-shadow(0 0 28px rgba(223, 177, 33, 0.18));
+}
+
+.site-boot-mark.is-ready {
+  opacity: 1;
+}
+
+.site-boot-mark.has-logo.is-isologo {
+  width: min(200px, 48vw);
+  height: min(200px, 48vw);
+  max-width: min(92vw, 240px);
+}
+
+.site-boot-img {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.site-boot-img.is-gray {
+  filter: grayscale(1) brightness(0.85);
+  opacity: 0.72;
+}
+
+.site-boot-img.is-color {
+  clip-path: inset(calc(100% - var(--boot-fill)) 0 0 0);
+}
+
+.site-boot-hint {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--silver);
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-boot {
+    transition: none;
+  }
+
+  .site-boot-mark {
+    transition: none;
+  }
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background-color: var(--bg-dark);
@@ -86,31 +178,44 @@ header {
 
 .hero {
   text-align: center;
-  background: radial-gradient(circle, #222936 0%, #11141a 100%);
-  padding: 60px 20px;
+  background: radial-gradient(circle at center, #222936 0%, #11141a 70%);
+  padding: clamp(36px, 8vw, 72px) clamp(16px, 4vw, 24px);
   border-bottom: 1px solid #252b36;
+  overflow: hidden;
 }
 
 .hero .container {
-  padding: 20px 0;
+  padding: clamp(12px, 3vw, 24px) 0;
+  width: min(92%, 1200px);
+  max-width: 100%;
 }
 
 .hero-logo {
-  width: 180px;
+  width: clamp(110px, 28vw, 180px);
   height: auto;
-  max-height: 180px;
+  max-width: 100%;
+  max-height: clamp(110px, 28vw, 180px);
   object-fit: contain;
-  margin-bottom: 20px;
+  margin: 0 auto clamp(14px, 3vw, 22px);
+  display: block;
 }
 
 .hero h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
+  font-size: clamp(1.65rem, 7.2vw, 3rem);
+  line-height: 1.15;
+  margin-bottom: clamp(8px, 2vw, 12px);
+  word-break: keep-all;
+  hyphens: none;
+  padding: 0 4px;
 }
 
 .hero p {
   color: var(--silver);
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 3.6vw, 1.2rem);
+  line-height: 1.45;
+  max-width: 28ch;
+  margin: 0 auto;
+  padding: 0 8px;
 }
 
 h2 {
@@ -132,7 +237,7 @@ h2::after {
 }
 
 .about-text {
-  text-align: center;
+  text-align: justify;
   max-width: 900px;
   margin: 0 auto 24px;
   color: var(--text-muted);
@@ -532,15 +637,84 @@ h2.with-subtitle {
 @media (max-width: 768px) {
   .nav-container {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .logo-nav {
+    font-size: 0.95rem;
+  }
+
+  .logo-nav img {
+    height: 34px;
   }
 
   .nav-menu {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 10px 14px;
+  }
+
+  .nav-menu a {
+    font-size: 0.75rem;
   }
 
   body {
-    padding-top: 130px;
+    padding-top: 140px;
+  }
+
+  .hero {
+    padding: 28px 14px 36px;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.55rem, 8.5vw, 2.2rem);
+  }
+
+  .hero p {
+    max-width: 22ch;
+    font-size: clamp(0.9rem, 3.8vw, 1.05rem);
+  }
+
+  h2 {
+    font-size: clamp(1.4rem, 5.5vw, 1.75rem);
+    margin-bottom: 28px;
+  }
+
+  .container {
+    padding: 40px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-top: 155px;
+  }
+
+  .hero {
+    padding: 22px 12px 30px;
+  }
+
+  .hero-logo {
+    width: 100px;
+    max-height: 100px;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .hero p {
+    max-width: 18ch;
+    font-size: 0.9rem;
+  }
+
+  .nav-menu {
+    gap: 8px 12px;
+  }
+
+  .nav-menu a {
+    font-size: 0.7rem;
   }
 }
