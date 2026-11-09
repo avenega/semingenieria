@@ -2,7 +2,7 @@
 INSERT OR REPLACE INTO settings (key, value) VALUES
   ('site_name', 'SEM Ingeniería'),
   ('hero_tagline', 'Soluciones Integrales con Energía y Prevención'),
-  ('about_p1', 'En SEM Ingeniería ofrecemos soluciones integrales en ingeniería eléctrica, electrónica y electromecánica en todo el Paraguay. Acompañamos proyectos residenciales, comerciales e industriales con montajes técnicos de calidad, instalaciones especializadas y sistemas de protección y combate contra incendios.'),
+  ('about_p1', 'En <strong>SEM Ingeniería</strong> ofrecemos soluciones integrales en ingeniería eléctrica, electrónica y electromecánica en todo el Paraguay. Acompañamos proyectos residenciales, comerciales e industriales con montajes técnicos de calidad, instalaciones especializadas y sistemas de protección.'),
   ('about_p2', 'Trabajamos con responsabilidad técnica, plazos claros y un enfoque en la seguridad de las personas y de las instalaciones, desde el diseño hasta la puesta en marcha.'),
   ('vision', 'Ser una empresa referente en los rubros en los que nos desempeñamos, reconocida por la responsabilidad y la excelencia en cada proyecto.'),
   ('mission', 'Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia y satisfacción a nuestros clientes.'),

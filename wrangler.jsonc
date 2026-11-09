@@ -1,6 +1,8 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "semingenieria",
+  "workers_dev": true,
+  "account_id": "deac1cb839e8f43cebe1f05d29e486e6",
   "main": "worker/src/index.ts",
   "compatibility_date": "2026-09-21",
   "compatibility_flags": ["nodejs_compat"],
@@ -13,11 +15,15 @@
   "observability": {
     "enabled": true
   },
+  "routes": [
+    { "pattern": "semingenieria.com.py", "custom_domain": true },
+    { "pattern": "www.semingenieria.com.py", "custom_domain": true }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "semingenieria-cms",
-      "database_id": "715e1d92-3773-4ad0-b5dd-f10b7f55aa0f",
+      "database_id": "cd7a2375-a972-42df-9277-6431899f03ad",
       "migrations_dir": "migrations"
     }
   ],

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { IconPicker } from '../IconPicker';
-import { api, type ProjectItem } from '../api';
+import { api, uploadMedia, type ProjectItem } from '../api';
+import { RichTextEditor } from '../components/RichTextEditor';
 import { useFlash } from '../flash';
 import {
   galleryKey,
@@ -22,30 +23,41 @@ function SettingsEditor({
   onChange,
 }: {
   settings: Record<string, string>;
-  keys: Array<{ key: string; label: string; rows?: number }>;
+  keys: Array<{ key: string; label: string; rich?: boolean; rows?: number }>;
   onChange: (key: string, value: string) => void;
 }) {
   return (
     <>
-      {keys.map((k) => (
-        <div className="field" key={k.key}>
-          <label htmlFor={k.key}>{k.label}</label>
-          {k.rows ? (
-            <textarea
-              id={k.key}
-              rows={k.rows}
-              value={settings[k.key] || ''}
-              onChange={(e) => onChange(k.key, e.target.value)}
-            />
-          ) : (
-            <input
-              id={k.key}
-              value={settings[k.key] || ''}
-              onChange={(e) => onChange(k.key, e.target.value)}
-            />
-          )}
-        </div>
-      ))}
+      {keys.map((k) =>
+        k.rich ? (
+          <RichTextEditor
+            key={k.key}
+            id={k.key}
+            label={k.label}
+            value={settings[k.key] || ''}
+            onChange={(html) => onChange(k.key, html)}
+            minHeight={k.rows ? k.rows * 28 : 110}
+          />
+        ) : (
+          <div className="field" key={k.key}>
+            <label htmlFor={k.key}>{k.label}</label>
+            {k.rows ? (
+              <textarea
+                id={k.key}
+                rows={k.rows}
+                value={settings[k.key] || ''}
+                onChange={(e) => onChange(k.key, e.target.value)}
+              />
+            ) : (
+              <input
+                id={k.key}
+                value={settings[k.key] || ''}
+                onChange={(e) => onChange(k.key, e.target.value)}
+              />
+            )}
+          </div>
+        ),
+      )}
     </>
   );
 }
@@ -228,17 +240,17 @@ export function ContentWorkspace({ section }: { section: ContentSection }) {
               keys={[
                 { key: 'site_name', label: 'Nombre del sitio' },
                 { key: 'hero_tagline', label: 'Subtítulo del hero' },
-                { key: 'about_p1', label: 'Sobre nosotros (párrafo 1)', rows: 4 },
-                { key: 'about_p2', label: 'Sobre nosotros (párrafo 2)', rows: 3 },
-                { key: 'vision', label: 'Visión', rows: 3 },
-                { key: 'mission', label: 'Misión', rows: 3 },
-                { key: 'commitment', label: 'Compromiso', rows: 3 },
+                { key: 'about_p1', label: 'Sobre nosotros (párrafo 1)', rich: true, rows: 5 },
+                { key: 'about_p2', label: 'Sobre nosotros (párrafo 2)', rich: true, rows: 4 },
+                { key: 'vision', label: 'Visión', rich: true, rows: 3 },
+                { key: 'mission', label: 'Misión', rich: true, rows: 3 },
+                { key: 'commitment', label: 'Compromiso', rich: true, rows: 3 },
                 { key: 'pillar_1_title', label: 'Pilar 1 — título' },
-                { key: 'pillar_1_text', label: 'Pilar 1 — texto', rows: 2 },
+                { key: 'pillar_1_text', label: 'Pilar 1 — texto', rich: true, rows: 3 },
                 { key: 'pillar_2_title', label: 'Pilar 2 — título' },
-                { key: 'pillar_2_text', label: 'Pilar 2 — texto', rows: 2 },
+                { key: 'pillar_2_text', label: 'Pilar 2 — texto', rich: true, rows: 3 },
                 { key: 'pillar_3_title', label: 'Pilar 3 — título' },
-                { key: 'pillar_3_text', label: 'Pilar 3 — texto', rows: 2 },
+                { key: 'pillar_3_text', label: 'Pilar 3 — texto', rich: true, rows: 3 },
               ]}
             />
             <div className="grid-2">
@@ -361,7 +373,7 @@ export function ContentWorkspace({ section }: { section: ContentSection }) {
                       setSite({ ...site, services });
                     }}
                   />
-                  Destacar (contra incendios)
+                  Destacar tarjeta
                 </label>
                 <div className="row-actions">
                   <button
@@ -410,18 +422,17 @@ export function ContentWorkspace({ section }: { section: ContentSection }) {
               </div>
             </div>
             <div className="panel-body">
-            <div className="field">
-              <label>Introducción (obras en curso)</label>
-              <textarea
-                value={site.settings.curso_intro || ''}
-                onChange={(e) =>
-                  setSite({
-                    ...site,
-                    settings: { ...site.settings, curso_intro: e.target.value },
-                  })
-                }
-              />
-            </div>
+            <RichTextEditor
+              label="Introducción (obras en curso)"
+              value={site.settings.curso_intro || ''}
+              onChange={(html) =>
+                setSite({
+                  ...site,
+                  settings: { ...site.settings, curso_intro: html },
+                })
+              }
+              minHeight={90}
+            />
             <h4 style={{ margin: '8px 0 12px', fontWeight: 600 }}>En ejecución</h4>
             {renderProjectEditor('curso', site.projects.curso, {
               title: 'Título',
@@ -502,18 +513,17 @@ export function ContentWorkspace({ section }: { section: ContentSection }) {
               </button>
             </div>
             <div className="panel-body">
-            <div className="field">
-              <label>Introducción</label>
-              <textarea
-                value={site.settings.fotos_intro || ''}
-                onChange={(e) =>
-                  setSite({
-                    ...site,
-                    settings: { ...site.settings, fotos_intro: e.target.value },
-                  })
-                }
-              />
-            </div>
+            <RichTextEditor
+              label="Introducción"
+              value={site.settings.fotos_intro || ''}
+              onChange={(html) =>
+                setSite({
+                  ...site,
+                  settings: { ...site.settings, fotos_intro: html },
+                })
+              }
+              minHeight={90}
+            />
             {site.gallery.map((g, idx) => (
               <div className="item-card" key={g.id}>
                 <div className="gallery-edit">
@@ -674,7 +684,7 @@ export function ContentWorkspace({ section }: { section: ContentSection }) {
                 { key: 'contact_whatsapp', label: 'WhatsApp (código país, ej. 595976129559)' },
                 { key: 'contact_hours_week', label: 'Horario semana' },
                 { key: 'contact_hours_sat', label: 'Horario sábado' },
-                { key: 'coverage_text', label: 'Texto de cobertura', rows: 3 },
+                { key: 'coverage_text', label: 'Texto de cobertura', rich: true, rows: 3 },
               ]}
             />
             </div>

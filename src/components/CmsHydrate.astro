@@ -15,6 +15,63 @@
     return escapeHtml(str).replaceAll("'", '&#39;');
   }
 
+  const ALLOWED_TAGS = new Set([
+    'STRONG',
+    'B',
+    'EM',
+    'I',
+    'U',
+    'BR',
+    'P',
+    'UL',
+    'OL',
+    'LI',
+    'A',
+    'SPAN',
+  ]);
+
+  /** Permite solo formato básico (negrita, listas, enlaces). */
+  function sanitizeCmsHtml(raw) {
+    const input = String(raw ?? '');
+    if (!/[<>]/.test(input)) return escapeHtml(input);
+
+    const doc = new DOMParser().parseFromString(`<div>${input}</div>`, 'text/html');
+    const root = doc.body.firstElementChild;
+    if (!root) return escapeHtml(input);
+
+    function walk(node) {
+      if (node.nodeType === Node.TEXT_NODE) return escapeHtml(node.textContent || '');
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+
+      const tag = node.tagName;
+      if (!ALLOWED_TAGS.has(tag)) {
+        return Array.from(node.childNodes).map(walk).join('');
+      }
+
+      if (tag === 'BR') return '<br>';
+
+      if (tag === 'A') {
+        const href = (node.getAttribute('href') || '').trim();
+        const safe =
+          href.startsWith('http://') ||
+          href.startsWith('https://') ||
+          href.startsWith('mailto:') ||
+          href.startsWith('tel:') ||
+          href.startsWith('/');
+        const inner = Array.from(node.childNodes).map(walk).join('');
+        if (!safe) return inner;
+        return `<a href="${escapeAttr(href)}" rel="noopener noreferrer">${inner}</a>`;
+      }
+
+      const inner = Array.from(node.childNodes).map(walk).join('');
+      const lower = tag.toLowerCase();
+      if (tag === 'SPAN') return inner;
+      return `<${lower}>${inner}</${lower}>`;
+    }
+
+    return Array.from(root.childNodes).map(walk).join('');
+  }
+
   function preloadImage(url) {
     return new Promise((resolve) => {
       const img = new Image();
@@ -48,7 +105,7 @@
 
       document.querySelectorAll('[data-cms-html]').forEach((el) => {
         const key = el.getAttribute('data-cms-html');
-        if (key && settings[key] != null) el.textContent = settings[key];
+        if (key && settings[key] != null) el.innerHTML = sanitizeCmsHtml(settings[key]);
       });
 
       const servicesHost = document.querySelector('[data-cms-services]');
@@ -57,7 +114,7 @@
           .map(
             (s) => `
           <div class="service-card reveal is-visible${s.highlight ? ' fire-special' : ''}">
-            <div class="service-icon"><i class="fa-solid ${s.icon}"></i></div>
+            <div class="service-icon"><i class="fa-solid ${escapeAttr(s.icon)}"></i></div>
             <h3>${escapeHtml(s.title)}</h3>
             <ul>${(s.items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
           </div>`,
@@ -78,7 +135,7 @@
               ${
                 p.image_url
                   ? `<img class="project-photo" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.title)}" loading="eager" decoding="async" />`
-                  : `<i class="fa-solid ${p.icon} fa-2x"></i>`
+                  : `<i class="fa-solid ${escapeAttr(p.icon)} fa-2x"></i>`
               }
             </div>
             <div class="project-info">
@@ -104,7 +161,7 @@
               ${
                 p.image_url
                   ? `<img class="project-photo" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.title)}" loading="eager" decoding="async" />`
-                  : `<i class="fa-solid ${p.icon} fa-2x"></i>`
+                  : `<i class="fa-solid ${escapeAttr(p.icon)} fa-2x"></i>`
               }
             </div>
             <div class="project-info">
@@ -128,7 +185,7 @@
           .map((g) => {
             const media = g.image_url
               ? `<img class="gallery-photo" src="${escapeAttr(g.image_url)}" alt="${escapeAttr(g.title)}" loading="eager" decoding="async" />`
-              : `<div class="photo-glow" aria-hidden="true"></div><i class="fa-solid ${g.icon} fa-3x"></i><span>Foto próximamente</span>`;
+              : `<div class="photo-glow" aria-hidden="true"></div><i class="fa-solid ${escapeAttr(g.icon)} fa-3x"></i><span>Foto próximamente</span>`;
             return `
           <div class="gallery-item reveal is-visible">
             <div class="photo-placeholder${g.image_url ? ' has-photo' : ''}">

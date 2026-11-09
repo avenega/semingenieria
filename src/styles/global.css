@@ -380,9 +380,18 @@ h2::after {
   font-size: 1.1rem;
 }
 
-.about-text strong {
+.about-text strong,
+.about-text b {
   color: var(--white);
   font-weight: 600;
+}
+
+.about-text p {
+  margin: 0 0 0.75em;
+}
+
+.about-text p:last-child {
+  margin-bottom: 0;
 }
 
 .about-text-secondary {
@@ -424,7 +433,8 @@ h2::after {
   color: var(--white);
 }
 
-.pillar-card p {
+.pillar-card p,
+.pillar-card > div {
   color: var(--text-muted);
   font-size: 0.95rem;
 }
@@ -455,7 +465,8 @@ h2::after {
   margin-bottom: 15px;
 }
 
-.mv-card p {
+.mv-card p,
+.mv-card > div {
   color: var(--text-muted);
   margin-top: 10px;
 }
