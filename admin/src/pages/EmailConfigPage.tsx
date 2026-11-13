@@ -206,7 +206,8 @@ export function EmailConfigPage() {
               <a href="https://resend.com" target="_blank" rel="noreferrer">
                 resend.com
               </a>
-              . También podés definir <code>RESEND_API_KEY</code> como secreto de Wrangler.
+              . Recomendado: secret <code>RESEND_API_KEY</code> en Cloudflare (más seguro que
+              guardarla en el CMS). Si el secret existe, tiene prioridad y no se guarda en D1.
             </span>
           </div>
         </div>

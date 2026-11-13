@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
+import { sanitizeCmsHtml } from '../lib/sanitizeHtml';
 
 type Props = {
   id?: string;
@@ -10,13 +11,15 @@ type Props = {
 };
 
 function normalizeHtml(html: string): string {
-  return html
-    .replace(/<div><br><\/div>/gi, '<br>')
-    .replace(/<div>/gi, '<br>')
-    .replace(/<\/div>/gi, '')
-    .replace(/^(<br\s*\/?>)+/i, '')
-    .replace(/(<br\s*\/?>)+$/i, '')
-    .trim();
+  return sanitizeCmsHtml(
+    html
+      .replace(/<div><br><\/div>/gi, '<br>')
+      .replace(/<div>/gi, '<br>')
+      .replace(/<\/div>/gi, '')
+      .replace(/^(<br\s*\/?>)+/i, '')
+      .replace(/(<br\s*\/?>)+$/i, '')
+      .trim(),
+  );
 }
 
 export function RichTextEditor({
@@ -36,7 +39,7 @@ export function RichTextEditor({
     const el = ref.current;
     if (!el) return;
     if (document.activeElement === el) return;
-    const next = value || '';
+    const next = sanitizeCmsHtml(value || '');
     if (el.innerHTML !== next) el.innerHTML = next;
   }, [value]);
 

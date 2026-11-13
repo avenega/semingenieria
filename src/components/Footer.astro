@@ -6,7 +6,10 @@ const year = new Date().getFullYear();
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="/" class="footer-logo">
-        <img src="/logo.png" alt="SEM Ingeniería" width="48" height="48" />
+        <picture>
+          <source srcset="/logo-96.webp" type="image/webp" />
+          <img src="/logo.png" alt="SEM Ingeniería" width="48" height="48" decoding="async" />
+        </picture>
         <span>
           <span class="logo-text-sem">SEM</span>{' '}
           <span class="logo-text-ing">INGENIERÍA</span>

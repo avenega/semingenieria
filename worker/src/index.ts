@@ -13,6 +13,7 @@ import {
   verifyPasswordHash,
 } from './auth';
 import { getEmailConfig, publicSettings, sendContactEmail, sendTestEmail, verifyTurnstile } from './contact';
+import { filterSettingsUpdate, isAllowedCorsOrigin, sniffImageMime } from './sanitize';
 import type { AuthUser, ContactMessageRow, Env, GalleryRow, ProjectRow, ServiceRow, UserRole } from './types';
 
 type AppEnv = {
@@ -22,7 +23,61 @@ type AppEnv = {
 
 const app = new Hono<AppEnv>();
 
-app.use('/api/*', cors());
+const APEX_HOST = 'semingenieria.com.py';
+
+/** Rutas típicas de scanners (WP/PHP/secrets). Defensa en profundidad además del WAF. */
+const PROBE_PATH_RE =
+  /(?:^|\/)(?:wp-admin|wp-login|wp-includes|wp-content|wordpress|xmlrpc\.php|phpmyadmin|cgi-bin|vendor\/phpunit)(?:\/|$)|(?:^|\/)\.env(?:\.|$)|(?:^|\/)\.git(?:\/|$)|(?:\.php|\.asp|\.aspx|\.jsp)$/i;
+
+// Una sola versión canónica: www → apex
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  if (url.hostname === `www.${APEX_HOST}`) {
+    url.hostname = APEX_HOST;
+    return c.redirect(url.toString(), 301);
+  }
+  return next();
+});
+
+app.use('*', async (c, next) => {
+  await next();
+  const res = c.res;
+  if (!res) return;
+  // ASSETS puede devolver Headers inmutables → clonar siempre
+  const headers = new Headers(res.headers);
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Frame-Options', 'SAMEORIGIN');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  if (!headers.has('X-Robots-Tag') && c.req.path.startsWith('/api/')) {
+    headers.set('X-Robots-Tag', 'noindex');
+  }
+  c.res = new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers,
+  });
+});
+
+app.use(
+  '/api/*',
+  cors({
+    origin: (origin) => (isAllowedCorsOrigin(origin) ? origin : ''),
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 86400,
+  }),
+);
+
+function clientIp(c: { req: { header: (name: string) => string | undefined } }): string {
+  return (
+    c.req.header('CF-Connecting-IP') ||
+    c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ||
+    c.req.header('x-real-ip') ||
+    'unknown'
+  );
+}
 
 function id() {
   return crypto.randomUUID();
@@ -103,6 +158,7 @@ app.get('/api/public/site', async (c) => {
 });
 
 app.get('/api/public/media/:key{.+}', async (c) => {
+  if (!c.env.MEDIA) return c.notFound();
   const key = c.req.param('key');
   const obj = await c.env.MEDIA.get(key);
   if (!obj) return c.notFound();
@@ -162,14 +218,14 @@ app.post('/api/public/contact', async (c) => {
     return c.json({ error: 'Completá el captcha' }, 400);
   }
 
-  const ip = c.req.header('CF-Connecting-IP') || c.req.header('x-forwarded-for') || null;
-  const okCaptcha = await verifyTurnstile(turnstileToken, secret, ip);
+  const ip = clientIp(c);
+  const okCaptcha = await verifyTurnstile(turnstileToken, secret, ip === 'unknown' ? null : ip);
   if (!okCaptcha) {
     return c.json({ error: 'Captcha inválido. Volvé a intentarlo.' }, 400);
   }
 
   // Simple rate limit: max 5 messages per IP in last hour
-  if (ip) {
+  {
     const recent = await c.env.DB.prepare(
       `SELECT COUNT(*) AS n FROM contact_messages
        WHERE ip = ? AND created_at >= datetime('now', '-1 hour')`,
@@ -220,6 +276,32 @@ app.post('/api/auth/login', async (c) => {
   const password = body.password || '';
   if (!password) return c.json({ error: 'Contraseña requerida' }, 400);
 
+  const ip = clientIp(c);
+  // Rate limit: máx. 10 intentos / IP / 15 min (fail-closed si D1/migración falla)
+  try {
+    const recent = await c.env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM auth_attempts
+       WHERE ip = ? AND created_at >= datetime('now', '-15 minutes')`,
+    )
+      .bind(ip)
+      .first<{ n: number }>();
+    if ((recent?.n ?? 0) >= 10) {
+      return c.json(
+        { error: 'Demasiados intentos. Esperá 15 minutos e intentá de nuevo.' },
+        429,
+      );
+    }
+  } catch (err) {
+    console.error('auth_attempts rate check', err);
+    return c.json(
+      {
+        error:
+          'Login temporalmente no disponible (rate limit). Aplicá la migración auth_attempts e intentá de nuevo.',
+      },
+      503,
+    );
+  }
+
   const total = await countUsers(c.env);
   if (total > 0 && !username) {
     return c.json({ error: 'Usuario y contraseña requeridos' }, 400);
@@ -227,7 +309,28 @@ app.post('/api/auth/login', async (c) => {
 
   try {
     const result = await login(c.env, username || 'admin', password);
-    if (!result) return c.json({ error: 'Credenciales incorrectas' }, 401);
+    if (!result) {
+      try {
+        await c.env.DB.prepare(
+          'INSERT INTO auth_attempts (id, ip, username, created_at) VALUES (?, ?, ?, ?)',
+        )
+          .bind(id(), ip, username.slice(0, 64) || null, new Date().toISOString())
+          .run();
+      } catch (err) {
+        console.error('auth_attempts insert', err);
+      }
+      return c.json({ error: 'Credenciales incorrectas' }, 401);
+    }
+    // Limpieza liviana de intentos viejos de esta IP
+    try {
+      await c.env.DB.prepare(
+        `DELETE FROM auth_attempts WHERE ip = ? OR created_at < datetime('now', '-1 day')`,
+      )
+        .bind(ip)
+        .run();
+    } catch {
+      /* ignore */
+    }
     return c.json({ token: result.token, user: result.user });
   } catch (err) {
     console.error(err);
@@ -407,16 +510,18 @@ app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (c) => {
 app.get('/api/admin/site', requireAuth, async (c) => c.json(await publicPayload(c.env)));
 
 app.put('/api/admin/settings', requireAuth, async (c) => {
-  const body = await c.req.json<Record<string, string>>();
-  const stmts = Object.entries(body)
-    .filter(([key]) => !key.startsWith('email_'))
-    .map(([key, value]) =>
-      c.env.DB.prepare(
-        'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
-      ).bind(key, String(value ?? '')),
-    );
-  if (stmts.length) await c.env.DB.batch(stmts);
-  return c.json({ ok: true });
+  const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+  const entries = filterSettingsUpdate(body);
+  if (!entries.length) {
+    return c.json({ error: 'No hay campos válidos para actualizar' }, 400);
+  }
+  const stmts = entries.map(([key, value]) =>
+    c.env.DB.prepare(
+      'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+    ).bind(key, value),
+  );
+  await c.env.DB.batch(stmts);
+  return c.json({ ok: true, updated: entries.map(([k]) => k) });
 });
 
 /* ---------- Admin: email config ---------- */
@@ -474,11 +579,20 @@ app.put('/api/admin/email-config', requireAuth, requireAdmin, async (c) => {
       ).bind('email_resend_api_key', ''),
     );
   } else if (typeof body.apiKey === 'string' && body.apiKey.trim()) {
-    stmts.push(
-      c.env.DB.prepare(
-        'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
-      ).bind('email_resend_api_key', body.apiKey.trim()),
-    );
+    // Preferí secret de Worker (RESEND_API_KEY). Si ya existe, no guardamos plaintext en D1.
+    if ((c.env.RESEND_API_KEY || '').trim()) {
+      stmts.push(
+        c.env.DB.prepare(
+          'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+        ).bind('email_resend_api_key', ''),
+      );
+    } else {
+      stmts.push(
+        c.env.DB.prepare(
+          'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
+        ).bind('email_resend_api_key', body.apiKey.trim()),
+      );
+    }
   }
 
   await c.env.DB.batch(stmts);
@@ -714,17 +828,25 @@ app.post('/api/admin/media', requireAuth, async (c) => {
     return c.json({ error: 'La imagen supera 8 MB' }, 400);
   }
 
-  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-  if (file.type && !allowed.includes(file.type)) {
-    return c.json({ error: 'Formato no permitido. Usá JPG, PNG, WebP o GIF.' }, 400);
-  }
-
   const mediaId = id();
   const safeName = file.name.replace(/[^\w.\-]+/g, '_');
   const objectKey = `uploads/${mediaId}-${safeName}`;
   const bytes = await file.arrayBuffer();
+  const sniffed = sniffImageMime(bytes);
+  if (!sniffed) {
+    return c.json({ error: 'Formato no permitido. Usá JPG, PNG, WebP o GIF.' }, 400);
+  }
+  // Si el cliente declara un type, debe coincidir con el contenido real
+  if (file.type && file.type !== sniffed) {
+    return c.json({ error: 'El tipo de archivo no coincide con el contenido.' }, 400);
+  }
+
+  if (!c.env.MEDIA) {
+    return c.json({ error: 'Almacenamiento de medios no configurado (R2).' }, 503);
+  }
+
   await c.env.MEDIA.put(objectKey, bytes, {
-    httpMetadata: { contentType: file.type || 'application/octet-stream' },
+    httpMetadata: { contentType: sniffed },
   });
   await c.env.DB.prepare(
     'INSERT INTO media (id, object_key, filename, content_type, size, created_at) VALUES (?, ?, ?, ?, ?, ?)',
@@ -733,7 +855,7 @@ app.post('/api/admin/media', requireAuth, async (c) => {
       mediaId,
       objectKey,
       file.name,
-      file.type || 'application/octet-stream',
+      sniffed,
       file.size,
       new Date().toISOString(),
     )
@@ -752,7 +874,7 @@ app.delete('/api/admin/media/:id', requireAuth, async (c) => {
     .bind(mediaId)
     .first<{ object_key: string }>();
   if (!row) return c.json({ error: 'No encontrado' }, 404);
-  await c.env.MEDIA.delete(row.object_key);
+  if (c.env.MEDIA) await c.env.MEDIA.delete(row.object_key);
   await c.env.DB.prepare('DELETE FROM media WHERE id = ?').bind(mediaId).run();
   return c.json({ ok: true });
 });
@@ -761,12 +883,34 @@ app.delete('/api/admin/media/:id', requireAuth, async (c) => {
 
 app.all('*', async (c) => {
   const url = new URL(c.req.url);
+
+  // Scanners CMS/PHP: respuesta mínima (el WAF ya debería haberlos bloqueado)
+  if (PROBE_PATH_RE.test(url.pathname)) {
+    return c.text('Not Found', 404);
+  }
+
+  // APIs inexistentes → JSON
+  if (url.pathname.startsWith('/api/')) {
+    return c.json({ error: 'No encontrado' }, 404);
+  }
+
   const res = await c.env.ASSETS.fetch(c.req.raw);
 
   // Admin SPA deep links
   if (res.status === 404 && url.pathname.startsWith('/admin')) {
     const indexReq = new Request(new URL('/admin/index.html', url.origin), c.req.raw);
     return c.env.ASSETS.fetch(indexReq);
+  }
+
+  // Página 404 personalizada
+  if (res.status === 404) {
+    const notFound = await c.env.ASSETS.fetch(new Request(new URL('/404.html', url.origin)));
+    if (notFound.ok) {
+      return new Response(notFound.body, {
+        status: 404,
+        headers: notFound.headers,
+      });
+    }
   }
 
   return res;

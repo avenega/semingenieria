@@ -7,8 +7,29 @@
 
 <div id="site-boot" class="site-boot" aria-busy="true" aria-live="polite" aria-label="Cargando SEM Ingeniería">
   <div class="site-boot-mark has-logo is-isologo" data-site-boot-mark>
-    <img class="site-boot-img is-gray" src="/logo.png" alt="SEM Ingeniería" width="500" height="500" />
-    <img class="site-boot-img is-color" src="/logo.png" alt="" width="500" height="500" aria-hidden="true" />
+    <picture>
+      <source srcset="/logo-180.webp" type="image/webp" />
+      <img
+        class="site-boot-img is-gray"
+        src="/logo.png"
+        alt="SEM Ingeniería"
+        width="180"
+        height="180"
+        decoding="async"
+      />
+    </picture>
+    <picture>
+      <source srcset="/logo-180.webp" type="image/webp" />
+      <img
+        class="site-boot-img is-color"
+        src="/logo.png"
+        alt=""
+        width="180"
+        height="180"
+        decoding="async"
+        aria-hidden="true"
+      />
+    </picture>
   </div>
   <p class="site-boot-hint">SEM Ingeniería</p>
 </div>
@@ -41,10 +62,10 @@
     const colorImg = overlay.querySelector('.site-boot-img.is-color');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const BOOT_MIN_VISIBLE_MS = 1100;
-    const BOOT_FILL_MS = 1400;
-    const BOOT_FILL_HOLD_MS = 400;
-    const BOOT_LERP = 0.12;
+    const BOOT_MIN_VISIBLE_MS = 320;
+    const BOOT_FILL_MS = 420;
+    const BOOT_FILL_HOLD_MS = 80;
+    const BOOT_LERP = 0.28;
 
     const started = performance.now();
     let target = 0;
@@ -158,7 +179,7 @@
 
     wireBootImg(grayImg, () => markRevealReady(), () => markRevealReady());
     wireBootImg(colorImg, () => markRevealReady());
-    window.setTimeout(() => markRevealReady(), 800);
+    window.setTimeout(() => markRevealReady(), 280);
 
     if (!reduceMotion) {
       window.addEventListener('pointermove', onPointer, { passive: true });

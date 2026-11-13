@@ -10,7 +10,8 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
+    // Worker primero: APIs + 404/500 HTML personalizados en todos los paths
+    "run_worker_first": true
   },
   "observability": {
     "enabled": true
@@ -27,15 +28,16 @@
       "migrations_dir": "migrations"
     }
   ],
-  "r2_buckets": [
-    {
-      "binding": "MEDIA",
-      "bucket_name": "semingenieria-media"
-    }
-  ],
-  // Turnstile test keys (siempre pasan). Reemplazá en producción.
+  // R2: habilitar en dashboard Semingepy y descomentar cuando exista el bucket.
+  // "r2_buckets": [
+  //   {
+  //     "binding": "MEDIA",
+  //     "bucket_name": "semingenieria-media"
+  //   }
+  // ],
+  // Turnstile producción (widget Semingepy). Para local: key de prueba 1x00000000000000000000AA
   // https://developers.cloudflare.com/turnstile/troubleshooting/testing/
   "vars": {
-    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAF6UXSFiurAMXJ-5"
   }
 }

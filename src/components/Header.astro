@@ -18,7 +18,10 @@ const links = [
 <header class="site-header" id="site-header">
   <div class="nav-container">
     <a href="/" class="logo-nav">
-      <img src="/logo.png" alt="SEM Ingeniería Logo" />
+      <picture>
+        <source srcset="/logo-96.webp" type="image/webp" />
+        <img src="/logo.png" alt="SEM Ingeniería Logo" width="40" height="40" decoding="async" />
+      </picture>
       <span class="logo-text-sem">SEM</span>{' '}
       <span class="logo-text-ing">INGENIERÍA</span>
     </a>

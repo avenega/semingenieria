@@ -1,0 +1,125 @@
+---
+import '../styles/fonts.css';
+import '../styles/icons.css';
+import '../styles/global.css';
+
+const siteUrl = 'https://semingenieria.com.py';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página no encontrada | SEM Ingeniería</title>
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="La página que buscás no existe o fue movida. Volvé al inicio de SEM Ingeniería."
+    />
+    <link rel="canonical" href={`${siteUrl}/404`} />
+    <link rel="icon" type="image/png" href="/logo.png" />
+  </head>
+  <body class="error-page">
+    <main class="error-shell">
+      <a href="/" class="error-brand">
+        <picture>
+          <source srcset="/logo-96.webp" type="image/webp" />
+          <img src="/logo.png" alt="SEM Ingeniería" width="56" height="56" decoding="async" />
+        </picture>
+        <span><span class="logo-text-sem">SEM</span> <span class="logo-text-ing">INGENIERÍA</span></span>
+      </a>
+      <p class="error-code">404</p>
+      <h1>Página no encontrada</h1>
+      <p class="error-lead">
+        El enlace no existe, fue movido o nunca estuvo publicado. Podés volver al inicio o
+        contactarnos.
+      </p>
+      <div class="error-actions">
+        <a class="btn btn-primary" href="/">Ir al inicio</a>
+        <a class="btn btn-outline" href="/contacto">Contacto</a>
+      </div>
+      <ul class="error-links">
+        <li><a href="/servicios">Servicios</a></li>
+        <li><a href="/curso">Obras en curso</a></li>
+        <li><a href="/entregadas">Obras entregadas</a></li>
+        <li><a href="/fotos">Foto de obras</a></li>
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  body.error-page {
+    min-height: 100vh;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1.25rem;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(223, 177, 33, 0.14), transparent 55%),
+      #0b0d11;
+    color: #f2f3f5;
+    font-family: 'Poppins', sans-serif;
+  }
+  .error-shell {
+    width: min(560px, 100%);
+    text-align: center;
+  }
+  .error-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.5rem;
+  }
+  .error-brand img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+  .error-code {
+    font-size: clamp(4rem, 14vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: #dfb121;
+    margin: 0 0 0.35rem;
+    letter-spacing: 0.06em;
+  }
+  .error-shell h1 {
+    font-size: clamp(1.4rem, 4vw, 1.85rem);
+    margin: 0 0 0.75rem;
+  }
+  .error-lead {
+    color: #a0a5ad;
+    line-height: 1.55;
+    margin: 0 0 1.75rem;
+  }
+  .error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.75rem;
+  }
+  .error-links {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1.25rem;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+  .error-links a {
+    color: #dfb121;
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .error-links a:hover {
+    text-decoration: underline;
+  }
+</style>

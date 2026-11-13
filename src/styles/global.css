@@ -66,6 +66,11 @@ html:not(.site-booting) #site-boot {
   max-width: min(92vw, 240px);
 }
 
+.site-boot-mark > picture {
+  grid-area: 1 / 1;
+  display: contents;
+}
+
 .site-boot-img {
   grid-area: 1 / 1;
   display: block;
@@ -179,6 +184,10 @@ body.nav-open {
   align-items: center;
   gap: 10px;
   z-index: 2;
+}
+
+.logo-nav picture {
+  display: contents;
 }
 
 .logo-nav img {
@@ -308,6 +317,13 @@ body.nav-open {
   display: block;
 }
 
+.hero-logo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
 .hero h1 {
   font-size: clamp(1.65rem, 7.2vw, 3rem);
   line-height: 1.15;
@@ -354,6 +370,7 @@ body.nav-open {
   }
 }
 
+h1.page-title,
 h2 {
   color: var(--gold);
   text-transform: uppercase;
@@ -363,6 +380,7 @@ h2 {
   position: relative;
 }
 
+h1.page-title::after,
 h2::after {
   content: '';
   display: block;
@@ -505,6 +523,10 @@ h2::after {
   text-decoration: none;
   font-weight: 700;
   color: var(--white);
+}
+
+.footer-logo picture {
+  display: contents;
 }
 
 .footer-logo img {
@@ -753,6 +775,7 @@ h2::after {
   margin-top: 0;
 }
 
+h1.with-subtitle,
 h2.with-subtitle {
   margin-bottom: 10px;
 }

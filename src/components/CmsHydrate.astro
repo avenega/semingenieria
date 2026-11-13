@@ -52,12 +52,13 @@
 
       if (tag === 'A') {
         const href = (node.getAttribute('href') || '').trim();
-        const safe =
-          href.startsWith('http://') ||
-          href.startsWith('https://') ||
-          href.startsWith('mailto:') ||
-          href.startsWith('tel:') ||
-          href.startsWith('/');
+        const safe = (() => {
+          if (!href || href.startsWith('//') || href.startsWith('\\\\')) return false;
+          if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
+            return /^(https?:|mailto:|tel:)/i.test(href);
+          }
+          return href.startsWith('/') && !href.startsWith('//');
+        })();
         const inner = Array.from(node.childNodes).map(walk).join('');
         if (!safe) return inner;
         return `<a href="${escapeAttr(href)}" rel="noopener noreferrer">${inner}</a>`;

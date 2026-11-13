@@ -67,13 +67,14 @@ export async function verifyPasswordHash(password: string, stored: string): Prom
     key,
     256,
   );
-  return bytesToHex(bits) === expected;
+  // Comparación constant-time vía HMAC (evita timing sobre el hex)
+  return hmacEqual('pw-cmp', bytesToHex(bits), expected);
 }
 
 async function matchesBootstrapPassword(env: Env, password: string): Promise<boolean> {
   const expected = env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  return hmacEqual(env.AUTH_SECRET || 'dev-secret', password, expected);
+  if (!expected || !env.AUTH_SECRET) return false;
+  return hmacEqual(env.AUTH_SECRET, password, expected);
 }
 
 export async function countUsers(env: Env): Promise<number> {

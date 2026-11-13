@@ -3,6 +3,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SiteBoot from '../components/SiteBoot.astro';
 import CmsHydrate from '../components/CmsHydrate.astro';
+import '../styles/fonts.css';
+import '../styles/icons.css';
 import '../styles/global.css';
 
 interface Props {
@@ -19,7 +21,53 @@ const {
 
 const siteUrl = 'https://semingenieria.com.py';
 const canonical = new URL(Astro.url.pathname, siteUrl).href;
-const ogImage = new URL('/logo.png', siteUrl).href;
+const ogImage = new URL('/og-default.png', siteUrl).href;
+const ogImageAlt = 'SEM Ingeniería — soluciones integrales en energía, montaje industrial y prevención en Paraguay';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': `${siteUrl}/#organization`,
+  name: 'SEM Ingeniería',
+  url: siteUrl,
+  logo: `${siteUrl}/logo.png`,
+  image: ogImage,
+  description,
+  telephone: '+595976129559',
+  email: 'info@semingenieria.com.py',
+  areaServed: {
+    '@type': 'Country',
+    name: 'Paraguay',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'PY',
+  },
+  sameAs: ['https://wa.me/595976129559'],
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      telephone: '+595976129559',
+      contactType: 'customer service',
+      areaServed: 'PY',
+      availableLanguage: ['es'],
+    },
+  ],
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '07:00',
+      closes: '17:00',
+    },
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: 'Saturday',
+      opens: '08:00',
+      closes: '12:00',
+    },
+  ],
+};
 ---
 
 <!DOCTYPE html>
@@ -40,20 +88,22 @@ const ogImage = new URL('/logo.png', siteUrl).href;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <link rel="preload" href="/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/poppins-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/logo-180.webp" as="image" type="image/webp" />
     <script is:inline>
       try {
         if (sessionStorage.getItem('sem-boot-done') === '1') {

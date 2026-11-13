@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Admin y APIs no deben indexarse
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://semingenieria.com.py/sitemap.xml

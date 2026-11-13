@@ -1,0 +1,104 @@
+/* Font Awesome 6 subset (self-hosted) — public site icons */
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/fa-solid-subset.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/fa-brands-subset.woff2') format('woff2');
+}
+.fa,
+.fa-solid,
+.fa-brands {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-rendering: auto;
+}
+.fa-solid {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+}
+.fa-brands {
+  font-family: 'Font Awesome 6 Brands';
+  font-weight: 400;
+}
+.fa-2x { font-size: 2em; }
+.fa-3x { font-size: 3em; }
+
+.fa-arrow-right:before { content: "\f061"; }
+.fa-bell:before { content: "\f0f3"; }
+.fa-bolt:before { content: "\f0e7"; }
+.fa-bolt-lightning:before { content: "\e0b7"; }
+.fa-box-open:before { content: "\f49e"; }
+.fa-boxes-stacked:before { content: "\f468"; }
+.fa-building:before { content: "\f1ad"; }
+.fa-building-shield:before { content: "\e4d8"; }
+.fa-camera:before { content: "\f030"; }
+.fa-cart-shopping:before { content: "\f07a"; }
+.fa-check:before { content: "\f00c"; }
+.fa-circle-check:before { content: "\f058"; }
+.fa-clock:before { content: "\f017"; }
+.fa-droplet:before { content: "\f043"; }
+.fa-earth-americas:before { content: "\f57d"; }
+.fa-envelope:before { content: "\f0e0"; }
+.fa-eye:before { content: "\f06e"; }
+.fa-fan:before { content: "\f863"; }
+.fa-faucet:before { content: "\e005"; }
+.fa-fire:before { content: "\f06d"; }
+.fa-fire-extinguisher:before { content: "\f134"; }
+.fa-gas-pump:before { content: "\f52f"; }
+.fa-gear:before { content: "\f013"; }
+.fa-gears:before { content: "\f085"; }
+.fa-glasses:before { content: "\f530"; }
+.fa-handshake:before { content: "\f2b5"; }
+.fa-hard-hat:before { content: "\f807"; }
+.fa-helmet-safety:before { content: "\f807"; }
+.fa-image:before { content: "\f03e"; }
+.fa-images:before { content: "\f302"; }
+.fa-industry:before { content: "\f275"; }
+.fa-key:before { content: "\f084"; }
+.fa-lightbulb:before { content: "\f0eb"; }
+.fa-lock:before { content: "\f023"; }
+.fa-map-location-dot:before { content: "\f5a0"; }
+.fa-mountain:before { content: "\f6fc"; }
+.fa-mountain-sun:before { content: "\e52f"; }
+.fa-network-wired:before { content: "\f6ff"; }
+.fa-oil-can:before { content: "\f613"; }
+.fa-phone:before { content: "\f095"; }
+.fa-phone-volume:before { content: "\f2a0"; }
+.fa-plug:before { content: "\f1e6"; }
+.fa-screwdriver-wrench:before { content: "\f7d9"; }
+.fa-server:before { content: "\f233"; }
+.fa-shield-halved:before { content: "\f3ed"; }
+.fa-ship:before { content: "\f21a"; }
+.fa-shirt:before { content: "\f553"; }
+.fa-snowflake:before { content: "\f2dc"; }
+.fa-solar-panel:before { content: "\f5ba"; }
+.fa-star:before { content: "\f005"; }
+.fa-store:before { content: "\f54e"; }
+.fa-temperature-low:before { content: "\f76b"; }
+.fa-toolbox:before { content: "\f552"; }
+.fa-tower-broadcast:before { content: "\f519"; }
+.fa-truck:before { content: "\f0d1"; }
+.fa-user-gear:before { content: "\f4fe"; }
+.fa-users:before { content: "\f0c0"; }
+.fa-video:before { content: "\f03d"; }
+.fa-warehouse:before { content: "\f494"; }
+.fa-water:before { content: "\f773"; }
+.fa-wheat-alt:before { content: "\e2cd"; }
+.fa-wheat-awn:before { content: "\e2cd"; }
+.fa-wind:before { content: "\f72e"; }
+.fa-wrench:before { content: "\f0ad"; }
+.fa-mountain-rocks:before { content: "\f6fc"; } /* legacy alias */
+.fa-wheat-straw:before { content: "\e2cd"; } /* legacy alias */
+.fa-whatsapp:before { content: "\f232"; }

@@ -23,7 +23,17 @@ const pilares = [
 <BaseLayout title="SEM Ingeniería - Soluciones Integrales" active="index">
   <section class="hero">
     <div class="container">
-      <img src="/logo.png" alt="SEM Ingeniería" class="hero-logo" />
+      <picture class="hero-logo">
+        <source srcset="/logo-180.webp" type="image/webp" />
+        <img
+          src="/logo.png"
+          alt="SEM Ingeniería"
+          width="180"
+          height="180"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
       <h1>
         <span class="logo-text-sem">SEM</span>{' '}
         <span class="logo-text-ing">INGENIERÍA</span>

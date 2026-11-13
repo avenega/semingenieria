@@ -50,7 +50,8 @@ export async function getEmailConfig(
 
   const apiKeyFromDb = (s.email_resend_api_key || '').trim();
   const apiKeyFromEnv = (env.RESEND_API_KEY || '').trim();
-  const apiKey = apiKeyFromDb || apiKeyFromEnv;
+  // Preferí secret del Worker sobre D1 (evita API key en claro en la base)
+  const apiKey = apiKeyFromEnv || apiKeyFromDb;
   const to = (s.email_to || env.CONTACT_TO_EMAIL || '').trim();
   const from = (s.email_from || env.CONTACT_FROM_EMAIL || '').trim();
   const enabled = (s.email_enabled || '0') === '1';
