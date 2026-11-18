@@ -734,6 +734,22 @@ h2::after {
   font-size: 0.85rem;
 }
 
+.footer-legal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.footer-credit {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-credit:hover {
+  color: var(--white);
+}
+
 .footer-cta-mini {
   color: var(--gold);
   text-decoration: none;
