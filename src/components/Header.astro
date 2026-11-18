@@ -30,7 +30,8 @@ const links = [
       class="nav-toggle"
       type="button"
       aria-expanded="false"
-      aria-controls="nav-menu"
+      aria-controls="nav-drawer"
+      aria-haspopup="dialog"
       aria-label="Abrir menú"
       id="nav-toggle"
     >
@@ -53,39 +54,107 @@ const links = [
   </div>
 </header>
 
+<dialog class="nav-drawer" id="nav-drawer" aria-label="Menú de navegación">
+  <div class="nav-drawer-scroller">
+    <nav class="nav-drawer-sheet">
+      <button
+        type="button"
+        class="nav-drawer-close"
+        id="nav-drawer-close"
+        aria-label="Cerrar menú"
+        autofocus
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+      <ul class="nav-drawer-list">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} class={active === link.id ? 'active' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</dialog>
+
 <script>
-  const header = document.getElementById('site-header');
-  const toggle = document.getElementById('nav-toggle');
-  const menu = document.getElementById('nav-menu');
+  /** @type {AbortController | null} */
+  let navAbort = null;
 
-  function onScroll() {
-    if (!header) return;
-    header.classList.toggle('is-compact', window.scrollY > 24);
+  function initNav() {
+    const header = document.getElementById('site-header');
+    const toggle = document.getElementById('nav-toggle');
+    const drawer = document.getElementById('nav-drawer');
+    const closeBtn = document.getElementById('nav-drawer-close');
+    const scroller = drawer?.querySelector('.nav-drawer-scroller');
+    const sheet = drawer?.querySelector('.nav-drawer-sheet');
+    if (!header || !toggle || !drawer || !scroller || !sheet) return;
+
+    navAbort?.abort();
+    navAbort = new AbortController();
+    const { signal } = navAbort;
+
+    function onScroll() {
+      header.classList.toggle('is-compact', window.scrollY > 24);
+    }
+
+    function syncToggle(open) {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    }
+
+    function openMenu() {
+      if (!drawer.open) drawer.showModal();
+      scroller.scrollTo({ left: 0, behavior: 'auto' });
+      syncToggle(true);
+    }
+
+    function requestClose() {
+      scroller.scrollTo({ left: scroller.clientWidth, behavior: 'auto' });
+    }
+
+    function forceClose() {
+      if (drawer.open) drawer.close();
+      syncToggle(false);
+    }
+
+    function toggleMenu() {
+      if (drawer.open) requestClose();
+      else openMenu();
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry || !drawer.open) return;
+        if (entry.intersectionRatio < 0.05) forceClose();
+      },
+      { root: scroller, threshold: [0, 0.05, 0.95, 1] },
+    );
+    io.observe(sheet);
+    signal.addEventListener('abort', () => io.disconnect());
+
+    toggle.addEventListener('click', toggleMenu, { signal });
+    closeBtn?.addEventListener('click', requestClose, { signal });
+    drawer.addEventListener('close', () => syncToggle(false), { signal });
+    drawer.addEventListener(
+      'cancel',
+      (e) => {
+        e.preventDefault();
+        requestClose();
+      },
+      { signal },
+    );
+    sheet.querySelectorAll('a').forEach((a) => a.addEventListener('click', forceClose, { signal }));
+    window.addEventListener('scroll', onScroll, { passive: true, signal });
+    onScroll();
   }
 
-  function closeMenu() {
-    if (!toggle || !menu) return;
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Abrir menú');
-    menu.classList.remove('is-open');
-    document.body.classList.remove('nav-open');
-  }
-
-  function toggleMenu() {
-    if (!toggle || !menu) return;
-    const open = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!open));
-    toggle.setAttribute('aria-label', open ? 'Abrir menú' : 'Cerrar menú');
-    menu.classList.toggle('is-open', !open);
-    document.body.classList.toggle('nav-open', !open);
-  }
-
-  toggle?.addEventListener('click', toggleMenu);
-  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMenu();
-  });
+  document.addEventListener('astro:page-load', initNav);
+  initNav();
 </script>

@@ -63,7 +63,7 @@ const pilares = [
       {
         pilares.map((p, i) => (
           <div class="pillar-card reveal">
-            <i class={`fa-solid ${p.icon}`} data-cms-pillar-icon={i + 1} />
+            <i class={`fa-solid ${p.icon}`} data-cms-pillar-icon={i + 1} aria-hidden="true" />
             <h3 data-cms-text={`pillar_${i + 1}_title`}>{p.title}</h3>
             <div data-cms-html={`pillar_${i + 1}_text`}>{p.text}</div>
           </div>
@@ -73,7 +73,7 @@ const pilares = [
 
     <div class="mv-grid">
       <div class="mv-card reveal">
-        <i class="fa-solid fa-eye"></i>
+        <i class="fa-solid fa-eye" aria-hidden="true"></i>
         <h3>Visión</h3>
         <div data-cms-html="vision">
           Ser una empresa referente en los rubros en los que nos desempeñamos, reconocida por la
@@ -81,7 +81,7 @@ const pilares = [
         </div>
       </div>
       <div class="mv-card reveal">
-        <i class="fa-solid fa-shield-halved"></i>
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
         <h3>Misión</h3>
         <div data-cms-html="mission">
           Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia y
@@ -89,7 +89,7 @@ const pilares = [
         </div>
       </div>
       <div class="mv-card reveal">
-        <i class="fa-solid fa-handshake"></i>
+        <i class="fa-solid fa-handshake" aria-hidden="true"></i>
         <h3>Compromiso</h3>
         <div data-cms-html="commitment">
           Ejecutar cada obra con ética profesional, cumplimiento normativo y atención cercana, en

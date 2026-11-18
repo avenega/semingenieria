@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SiteBoot from '../components/SiteBoot.astro';
@@ -75,9 +76,13 @@ const jsonLd = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#11141a" />
+    <meta name="text-scale" content="scale" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
@@ -103,31 +108,56 @@ const jsonLd = {
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
+    <!-- Solo fuentes críticas para LCP; 600 carga bajo demanda -->
     <link rel="preload" href="/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/poppins-700.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/logo-180.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/logo-180.webp" as="image" type="image/webp" fetchpriority="high" />
+    <ClientRouter />
     <script is:inline>
       try {
         if (sessionStorage.getItem('sem-boot-done') === '1') {
           document.documentElement.classList.remove('site-booting');
         }
       } catch (e) {}
+      document.addEventListener('astro:before-swap', function (event) {
+        try {
+          if (sessionStorage.getItem('sem-boot-done') !== '1') return;
+          var next = event.newDocument;
+          if (!next) return;
+          next.documentElement.classList.remove('site-booting');
+          var boot = next.getElementById('site-boot');
+          if (boot) boot.remove();
+        } catch (err) {}
+      });
     </script>
   </head>
   <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <SiteBoot />
     <Header active={active} />
-    <slot />
+    <main id="contenido">
+      <slot />
+    </main>
     <Footer />
     <CmsHydrate />
 
     <script>
-      const reveals = document.querySelectorAll('.reveal');
-      if (reveals.length && 'IntersectionObserver' in window) {
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (reduce) {
-          reveals.forEach((el) => el.classList.add('is-visible'));
-        } else {
+      function initReveals() {
+        const reveals = document.querySelectorAll('.reveal:not(.is-visible)');
+        const supportsViewTimeline =
+          typeof CSS !== 'undefined' &&
+          CSS.supports &&
+          (CSS.supports('animation-timeline: view()') ||
+            CSS.supports('animation-timeline', 'view()'));
+
+        if (supportsViewTimeline) return;
+
+        if (reveals.length && 'IntersectionObserver' in window) {
+          const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (reduce) {
+            reveals.forEach((el) => el.classList.add('is-visible'));
+            return;
+          }
           const io = new IntersectionObserver(
             (entries) => {
               entries.forEach((entry) => {
@@ -140,10 +170,14 @@ const jsonLd = {
             { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
           );
           reveals.forEach((el) => io.observe(el));
+          return;
         }
-      } else {
-        reveals.forEach((el) => el.classList.add('is-visible'));
+
+        document.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-visible'));
       }
+
+      document.addEventListener('astro:page-load', initReveals);
+      initReveals();
     </script>
   </body>
 </html>

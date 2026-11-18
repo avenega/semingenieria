@@ -22,7 +22,7 @@ export function AdminLayout() {
   const [navOpen, setNavOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const matches = useMatches();
-  const handle = [...matches].reverse().find((m) => m.handle)?.handle as RouteHandle | undefined;
+  const handle = matches.findLast((m) => m.handle)?.handle as RouteHandle | undefined;
   const title = handle?.title || 'Gestión del sitio';
   const description = handle?.description || 'Los cambios se reflejan al instante.';
 

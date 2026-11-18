@@ -128,7 +128,7 @@ const canales = [
           <h2>Enviar consulta</h2>
           <p>Completá los datos y te contactamos a la brevedad.</p>
         </div>
-        <form class="contact-form" id="contact-form" novalidate>
+        <form class="contact-form" id="contact-form">
           <div class="form-row">
             <div class="form-group">
               <label for="name">Nombre / Empresa</label>
@@ -139,8 +139,13 @@ const canales = [
                 class="form-control"
                 placeholder="Ej. Constructora S.A."
                 required
-                autocomplete="organization"
+                minlength="2"
+                maxlength="120"
+                autocomplete="name"
+                aria-invalid="false"
+                data-error="name-error"
               />
+              <p id="name-error" class="field-error" hidden>Ingresá tu nombre o empresa (mín. 2 caracteres).</p>
             </div>
             <div class="form-group">
               <label for="phone">Teléfono</label>
@@ -151,7 +156,11 @@ const canales = [
                 class="form-control"
                 placeholder="Ej. 0976 000 000"
                 autocomplete="tel"
+                inputmode="tel"
+                aria-invalid="false"
+                data-error="phone-error"
               />
+              <p id="phone-error" class="field-error" hidden>Revisá el número de teléfono.</p>
             </div>
           </div>
           <div class="form-group">
@@ -164,7 +173,10 @@ const canales = [
               placeholder="ejemplo@correo.com"
               required
               autocomplete="email"
+              aria-invalid="false"
+              data-error="email-error"
             />
+            <p id="email-error" class="field-error" hidden>Ingresá un correo válido.</p>
           </div>
           <div class="form-group">
             <label for="message">Detalle del proyecto o solicitud</label>
@@ -175,7 +187,11 @@ const canales = [
               class="form-control"
               placeholder="Describí brevemente los requerimientos eléctricos, industriales o contra incendios..."
               required
-              minlength="10"></textarea>
+              minlength="10"
+              aria-invalid="false"
+              data-error="message-error"
+            ></textarea>
+            <p id="message-error" class="field-error" hidden>El mensaje debe tener al menos 10 caracteres.</p>
           </div>
           <!-- Honeypot anti-bot -->
           <div class="hp-field" aria-hidden="true">
@@ -185,7 +201,8 @@ const canales = [
           <div class="form-group">
             <div id="turnstile-slot" class="turnstile-slot"></div>
           </div>
-          <p id="contact-form-status" class="contact-form-status" role="status" hidden></p>
+          <p id="contact-form-status" class="contact-form-status" role="status" aria-live="polite" hidden></p>
+          <div id="contact-form-announcer" class="visually-hidden" aria-live="polite"></div>
           <button type="submit" class="btn-submit" id="contact-submit">
             Enviar mensaje
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
@@ -211,17 +228,28 @@ const canales = [
     </section>
   </div>
 
-  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-  <script is:inline>
-    (function () {
+  <script>
+    let turnstileLoading = false;
+    let siteKeyCache = '';
+
+    function initContactForm() {
       const form = document.getElementById('contact-form');
-      if (!form) return;
+      if (!form || form.dataset.bound === '1') return;
+      form.dataset.bound = '1';
 
       const statusEl = document.getElementById('contact-form-status');
+      const announcer = document.getElementById('contact-form-announcer');
       const submitBtn = document.getElementById('contact-submit');
       const slot = document.getElementById('turnstile-slot');
+      const fields = ['name', 'email', 'phone', 'message']
+        .map((id) => form.elements.namedItem(id))
+        .filter(Boolean);
+
       let widgetId = null;
-      let siteKey = '';
+      let siteKey = siteKeyCache;
+      let turnstileReady = false;
+      let armed = false;
+      let announceTimer;
 
       function setStatus(type, text) {
         if (!statusEl) return;
@@ -230,56 +258,132 @@ const canales = [
         statusEl.className = 'contact-form-status' + (type ? ' is-' + type : '');
       }
 
-      function resetTurnstile() {
-        if (widgetId != null && window.turnstile) {
-          window.turnstile.reset(widgetId);
+      function linkError(el, shown) {
+        const errorId = el.dataset?.error;
+        if (!errorId) return;
+        const ids = (el.getAttribute('aria-describedby') || '')
+          .split(/\s+/)
+          .filter((id) => id && id !== errorId);
+        if (shown) ids.push(errorId);
+        if (ids.length) el.setAttribute('aria-describedby', ids.join(' '));
+        else el.removeAttribute('aria-describedby');
+        const err = document.getElementById(errorId);
+        if (err) err.hidden = !shown;
+      }
+
+      function syncAria(el, announce = false) {
+        if (!el?.matches?.('input, select, textarea')) return;
+        const invalid = el.matches(':user-invalid');
+        el.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+        linkError(el, invalid);
+        el.closest('.form-group')?.classList.toggle('is-invalid', invalid);
+        if (announce && invalid && announcer) {
+          const err = document.getElementById(el.dataset.error);
+          clearTimeout(announceTimer);
+          announcer.textContent = '';
+          announceTimer = setTimeout(() => {
+            announcer.textContent = err?.textContent?.trim() || 'Revisá este campo';
+          }, 500);
         }
       }
 
+      fields.forEach((el) => {
+        el.setAttribute('aria-invalid', 'false');
+        el.addEventListener('input', () => {
+          el.setCustomValidity?.('');
+          syncAria(el);
+        });
+        el.addEventListener('blur', () => syncAria(el, true));
+        el.addEventListener('invalid', () => syncAria(el));
+      });
+
+      function resetTurnstile() {
+        if (widgetId != null && window.turnstile) window.turnstile.reset(widgetId);
+      }
+
       function renderTurnstile() {
-        if (!slot || !siteKey || !window.turnstile) return;
-        if (widgetId != null) return;
+        if (!slot || !siteKey || !window.turnstile || widgetId != null) return;
         widgetId = window.turnstile.render(slot, {
           sitekey: siteKey,
           theme: 'dark',
           language: 'es',
         });
+        turnstileReady = true;
       }
 
-      function waitTurnstile(cb) {
+      function loadTurnstileScript(cb) {
         if (window.turnstile) {
           cb();
           return;
         }
-        let tries = 0;
-        const t = setInterval(function () {
-          tries += 1;
-          if (window.turnstile || tries > 40) {
-            clearInterval(t);
-            if (window.turnstile) cb();
-          }
-        }, 150);
+        if (turnstileLoading) {
+          let tries = 0;
+          const t = setInterval(() => {
+            tries += 1;
+            if (window.turnstile || tries > 40) {
+              clearInterval(t);
+              if (window.turnstile) cb();
+            }
+          }, 150);
+          return;
+        }
+        turnstileLoading = true;
+        const s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        s.async = true;
+        s.defer = true;
+        s.onload = () => cb();
+        s.onerror = () => {
+          turnstileLoading = false;
+          setStatus('error', 'No se pudo cargar el captcha. Intentá más tarde.');
+        };
+        document.head.appendChild(s);
       }
 
-      fetch('/api/public/config')
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function (cfg) {
-          siteKey = cfg.turnstileSiteKey || '';
-          if (!siteKey) {
-            setStatus('error', 'Captcha no disponible. Intentá más tarde.');
-            return;
-          }
-          waitTurnstile(renderTurnstile);
-        })
-        .catch(function () {
-          setStatus('error', 'No se pudo cargar la configuración del formulario.');
-        });
+      function ensureTurnstile() {
+        if (!siteKey) {
+          fetch('/api/public/config')
+            .then((r) => r.json())
+            .then((cfg) => {
+              siteKey = cfg.turnstileSiteKey || '';
+              siteKeyCache = siteKey;
+              if (!siteKey) {
+                setStatus('error', 'Captcha no disponible. Intentá más tarde.');
+                return;
+              }
+              loadTurnstileScript(renderTurnstile);
+            })
+            .catch(() => {
+              setStatus('error', 'No se pudo cargar la configuración del formulario.');
+            });
+          return;
+        }
+        loadTurnstileScript(renderTurnstile);
+      }
 
-      form.addEventListener('submit', async function (e) {
+      function armTurnstile() {
+        if (armed) return;
+        armed = true;
+        ensureTurnstile();
+      }
+
+      form.addEventListener('focusin', armTurnstile);
+      form.addEventListener('pointerdown', armTurnstile, { once: true });
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         setStatus('', '');
+        fields.forEach((el) => el?.setCustomValidity?.(''));
+
+        if (!form.checkValidity()) {
+          fields.forEach((el) => syncAria(el));
+          const firstInvalid = fields.find((el) => el && !el.validity.valid);
+          firstInvalid?.focus();
+          form.reportValidity();
+          return;
+        }
+
+        armTurnstile();
 
         const name = (form.name.value || '').trim();
         const email = (form.email.value || '').trim();
@@ -287,25 +391,13 @@ const canales = [
         const message = (form.message.value || '').trim();
         const website = (form.website && form.website.value) || '';
 
-        if (name.length < 2) {
-          setStatus('error', 'Ingresá tu nombre o empresa');
-          return;
-        }
-        if (!email) {
-          setStatus('error', 'Ingresá un correo válido');
-          return;
-        }
-        if (message.length < 10) {
-          setStatus('error', 'El mensaje debe tener al menos 10 caracteres');
-          return;
-        }
-
         let token = '';
         if (window.turnstile && widgetId != null) {
           token = window.turnstile.getResponse(widgetId) || '';
         }
         if (!token) {
-          setStatus('error', 'Completá el captcha');
+          setStatus('error', turnstileReady ? 'Completá el captcha' : 'Cargando captcha…');
+          if (!turnstileReady) ensureTurnstile();
           return;
         }
 
@@ -318,26 +410,25 @@ const canales = [
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              name: name,
-              email: email,
-              phone: phone,
-              message: message,
-              website: website,
+              name,
+              email,
+              phone,
+              message,
+              website,
               turnstileToken: token,
             }),
           });
-          const data = await res.json().catch(function () {
-            return {};
-          });
-          if (!res.ok) {
-            throw new Error(data.error || 'No se pudo enviar el mensaje');
-          }
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'No se pudo enviar el mensaje');
           form.reset();
+          fields.forEach((el) => {
+            if (!el) return;
+            el.setAttribute('aria-invalid', 'false');
+            linkError(el, false);
+            el.closest('.form-group')?.classList.remove('is-invalid');
+          });
           resetTurnstile();
-          setStatus(
-            'ok',
-            '¡Mensaje enviado! Te contactaremos a la brevedad.',
-          );
+          setStatus('ok', '¡Mensaje enviado! Te contactaremos a la brevedad.');
         } catch (err) {
           resetTurnstile();
           setStatus('error', err.message || 'Error al enviar');
@@ -346,6 +437,9 @@ const canales = [
           submitBtn.classList.remove('is-loading');
         }
       });
-    })();
+    }
+
+    document.addEventListener('astro:page-load', initContactForm);
+    initContactForm();
   </script>
 </BaseLayout>

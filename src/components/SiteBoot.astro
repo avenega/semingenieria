@@ -2,6 +2,7 @@
 /**
  * Splash inicial estilo innit.com.py:
  * logo en gris + revelado en color (--boot-fill) y cierre suave.
+ * Solo en la primera carga; con View Transitions se excluye en navegaciones siguientes.
  */
 ---
 
@@ -16,6 +17,7 @@
         width="180"
         height="180"
         decoding="async"
+        fetchpriority="low"
       />
     </picture>
     <picture>
@@ -27,6 +29,7 @@
         width="180"
         height="180"
         decoding="async"
+        fetchpriority="low"
         aria-hidden="true"
       />
     </picture>
@@ -35,37 +38,77 @@
 </div>
 
 <script>
+  const BOOT_KEY = 'sem-boot-done';
+
+  function bootAlreadyDone() {
+    try {
+      return sessionStorage.getItem(BOOT_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function stripBoot(doc = document) {
+    doc.documentElement.classList.remove('site-booting');
+    doc.getElementById('site-boot')?.remove();
+  }
+
+  function markBootDone() {
+    try {
+      sessionStorage.setItem(BOOT_KEY, '1');
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** Evita que ClientRouter reinyecte el splash y deje html.site-booting trabado. */
+  document.addEventListener('astro:before-swap', (event) => {
+    if (!bootAlreadyDone()) return;
+    const next = event.newDocument;
+    if (!next) return;
+    next.documentElement.classList.remove('site-booting');
+    next.getElementById('site-boot')?.remove();
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    if (bootAlreadyDone()) stripBoot();
+  });
+
   function initSiteBoot() {
     const root = document.documentElement;
     const overlay = document.getElementById('site-boot');
+
+    if (bootAlreadyDone()) {
+      stripBoot();
+      return;
+    }
+
     if (!(overlay instanceof HTMLElement)) {
       root.classList.remove('site-booting');
       return;
     }
 
-    try {
-      if (sessionStorage.getItem('sem-boot-done') === '1') {
-        root.classList.remove('site-booting');
-        overlay.remove();
-        return;
-      }
-    } catch {
-      /* ignore */
-    }
-
     if (overlay.getAttribute('data-boot-wired') === '1') return;
     overlay.setAttribute('data-boot-wired', '1');
-    root.classList.add('site-booting');
 
     const mark = overlay.querySelector('[data-site-boot-mark]');
     const grayImg = overlay.querySelector('.site-boot-img.is-gray');
     const colorImg = overlay.querySelector('.site-boot-img.is-color');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const BOOT_MIN_VISIBLE_MS = 320;
-    const BOOT_FILL_MS = 420;
-    const BOOT_FILL_HOLD_MS = 80;
-    const BOOT_LERP = 0.28;
+    // Reduced motion / LCP: no bloquear el hero
+    if (reduceMotion) {
+      markBootDone();
+      stripBoot();
+      return;
+    }
+
+    root.classList.add('site-booting');
+
+    const BOOT_MIN_VISIBLE_MS = 180;
+    const BOOT_FILL_MS = 280;
+    const BOOT_FILL_HOLD_MS = 40;
+    const BOOT_LERP = 0.38;
 
     const started = performance.now();
     let target = 0;
@@ -112,11 +155,7 @@
       overlay.classList.add('is-done');
       overlay.setAttribute('aria-busy', 'false');
       root.classList.remove('site-booting');
-      try {
-        sessionStorage.setItem('sem-boot-done', '1');
-      } catch {
-        /* ignore */
-      }
+      markBootDone();
       window.setTimeout(() => overlay.remove(), 450);
     }
 
@@ -210,5 +249,6 @@
     raf = requestAnimationFrame(tick);
   }
 
+  document.addEventListener('astro:page-load', initSiteBoot);
   initSiteBoot();
 </script>

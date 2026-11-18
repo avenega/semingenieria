@@ -73,13 +73,18 @@
     return Array.from(root.childNodes).map(walk).join('');
   }
 
-  function preloadImage(url) {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = url;
-    });
+  /**
+   * @param {{ url: string, alt: string, className: string, index: number, width: number, height: number, sizes: string, lightbox?: boolean }} opts
+   */
+  function cmsImg(opts) {
+    const { url, alt, className, index, width, height, sizes, lightbox } = opts;
+    const priority =
+      index === 0
+        ? 'fetchpriority="high" decoding="async"'
+        : 'loading="lazy" decoding="async"';
+    const img = `<img class="${className}" src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" width="${width}" height="${height}" sizes="${escapeAttr(sizes)}" ${priority} />`;
+    if (!lightbox) return img;
+    return `<button type="button" class="gallery-open" data-full-src="${escapeAttr(url)}" data-full-alt="${escapeAttr(alt)}" aria-label="Ampliar foto: ${escapeAttr(alt)}">${img}</button>`;
   }
 
   function markReady(el) {
@@ -89,9 +94,46 @@
     el.setAttribute('aria-busy', 'false');
   }
 
+  function ensureLightbox() {
+    let dialog = document.getElementById('gallery-lightbox');
+    if (dialog) return dialog;
+
+    dialog = document.createElement('dialog');
+    dialog.id = 'gallery-lightbox';
+    dialog.className = 'gallery-lightbox';
+    dialog.setAttribute('aria-label', 'Foto ampliada');
+    dialog.setAttribute('closedby', 'any');
+    dialog.innerHTML = `
+      <form method="dialog" class="gallery-lightbox-bar">
+        <button type="submit" class="gallery-lightbox-close" aria-label="Cerrar">Cerrar</button>
+      </form>
+      <img class="gallery-lightbox-img" alt="" width="1200" height="900" decoding="async" />
+    `;
+    document.body.appendChild(dialog);
+    return dialog;
+  }
+
+  function wireGalleryLightbox(root) {
+    const dialog = ensureLightbox();
+    const img = dialog.querySelector('.gallery-lightbox-img');
+    root.querySelectorAll('.gallery-open').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const src = btn.getAttribute('data-full-src') || '';
+        const alt = btn.getAttribute('data-full-alt') || '';
+        if (!src || !(img instanceof HTMLImageElement)) return;
+        img.src = src;
+        img.alt = alt;
+        dialog.showModal();
+      });
+    });
+  }
+
   async function hydrateCms() {
     try {
-      const res = await fetch('/api/public/site', { headers: { Accept: 'application/json' } });
+      const res = await fetch('/api/public/site', {
+        headers: { Accept: 'application/json' },
+        priority: 'low',
+      }).catch(() => fetch('/api/public/site', { headers: { Accept: 'application/json' } }));
       if (!res.ok) {
         document.querySelectorAll('.cms-pending').forEach(markReady);
         return;
@@ -115,7 +157,7 @@
           .map(
             (s) => `
           <div class="service-card reveal is-visible${s.highlight ? ' fire-special' : ''}">
-            <div class="service-icon"><i class="fa-solid ${escapeAttr(s.icon)}"></i></div>
+            <div class="service-icon"><i class="fa-solid ${escapeAttr(s.icon)}" aria-hidden="true"></i></div>
             <h3>${escapeHtml(s.title)}</h3>
             <ul>${(s.items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
           </div>`,
@@ -124,69 +166,90 @@
         markReady(servicesHost);
       }
 
+      const projectSizes = '(max-width: 768px) 92vw, 320px';
+      const gallerySizes = '(max-width: 768px) 92vw, 360px';
+
       const cursoHost = document.querySelector('[data-cms-curso]');
       if (cursoHost && data.projects?.curso) {
-        const cursoImgs = data.projects.curso.filter((p) => p.image_url);
-        await Promise.all(cursoImgs.map((p) => preloadImage(p.image_url)));
+        let imgIndex = 0;
         cursoHost.innerHTML = data.projects.curso
-          .map(
-            (p) => `
+          .map((p) => {
+            const media = p.image_url
+              ? cmsImg({
+                  url: p.image_url,
+                  alt: p.title,
+                  className: 'project-photo',
+                  index: imgIndex++,
+                  width: 640,
+                  height: 360,
+                  sizes: projectSizes,
+                })
+              : `<i class="fa-solid ${escapeAttr(p.icon)} fa-2x" aria-hidden="true"></i>`;
+            return `
           <div class="project-card reveal is-visible">
             <div class="project-img-placeholder${p.image_url ? ' has-photo' : ''}">
-              ${
-                p.image_url
-                  ? `<img class="project-photo" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.title)}" loading="eager" decoding="async" />`
-                  : `<i class="fa-solid ${escapeAttr(p.icon)} fa-2x"></i>`
-              }
+              ${media}
             </div>
             <div class="project-info">
               <h3>${escapeHtml(p.title)}</h3>
               <p>${escapeHtml(p.subtitle || '')}</p>
               <span class="badge">${escapeHtml(p.badge || 'En Ejecución')}</span>
             </div>
-          </div>`,
-          )
+          </div>`;
+          })
           .join('');
         markReady(cursoHost);
       }
 
       const entHost = document.querySelector('[data-cms-entregadas]');
       if (entHost && data.projects?.entregadas) {
-        const entImgs = data.projects.entregadas.filter((p) => p.image_url);
-        await Promise.all(entImgs.map((p) => preloadImage(p.image_url)));
+        let imgIndex = 0;
         entHost.innerHTML = data.projects.entregadas
-          .map(
-            (p) => `
+          .map((p) => {
+            const media = p.image_url
+              ? cmsImg({
+                  url: p.image_url,
+                  alt: p.title,
+                  className: 'project-photo',
+                  index: imgIndex++,
+                  width: 640,
+                  height: 360,
+                  sizes: projectSizes,
+                })
+              : `<i class="fa-solid ${escapeAttr(p.icon)} fa-2x" aria-hidden="true"></i>`;
+            return `
           <div class="project-card reveal is-visible">
             <div class="project-img-placeholder${p.image_url ? ' has-photo' : ''}">
-              ${
-                p.image_url
-                  ? `<img class="project-photo" src="${escapeAttr(p.image_url)}" alt="${escapeAttr(p.title)}" loading="eager" decoding="async" />`
-                  : `<i class="fa-solid ${escapeAttr(p.icon)} fa-2x"></i>`
-              }
+              ${media}
             </div>
             <div class="project-info">
               <h3>${escapeHtml(p.title)}</h3>
               <p>${escapeHtml(p.subtitle || '')}</p>
               <span class="badge success">${escapeHtml(p.badge || 'Entregada')}</span>
             </div>
-          </div>`,
-          )
+          </div>`;
+          })
           .join('');
         markReady(entHost);
       }
 
-      // Galería: precargar imágenes reales antes de mostrar (evita pestañeo)
       const galHost = document.querySelector('[data-cms-gallery]');
       if (galHost && Array.isArray(data.gallery)) {
-        const withImages = data.gallery.filter((g) => g.image_url);
-        await Promise.all(withImages.map((g) => preloadImage(g.image_url)));
-
+        let imgIndex = 0;
         galHost.innerHTML = data.gallery
           .map((g) => {
             const media = g.image_url
-              ? `<img class="gallery-photo" src="${escapeAttr(g.image_url)}" alt="${escapeAttr(g.title)}" loading="eager" decoding="async" />`
-              : `<div class="photo-glow" aria-hidden="true"></div><i class="fa-solid ${escapeAttr(g.icon)} fa-3x"></i><span>Foto próximamente</span>`;
+              ? cmsImg({
+                  url: g.image_url,
+                  alt: g.title,
+                  className: 'gallery-photo',
+                  index: imgIndex++,
+                  width: 800,
+                  height: 600,
+                  sizes: gallerySizes,
+                  lightbox: true,
+                })
+              : `<div class="photo-glow" aria-hidden="true"></div><i class="fa-solid ${escapeAttr(g.icon)} fa-3x" aria-hidden="true"></i><span>Foto próximamente</span>`;
             return `
           <div class="gallery-item reveal is-visible">
             <div class="photo-placeholder${g.image_url ? ' has-photo' : ''}">
@@ -197,6 +260,7 @@
           })
           .join('');
         markReady(galHost);
+        wireGalleryLightbox(galHost);
       }
 
       const phone = settings.contact_phone;
@@ -225,5 +289,10 @@
     }
   }
 
-  hydrateCms();
+  function bootCms() {
+    hydrateCms();
+  }
+
+  document.addEventListener('astro:page-load', bootCms);
+  bootCms();
 </script>
