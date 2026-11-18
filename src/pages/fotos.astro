@@ -7,13 +7,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   description="Registro visual de montajes industriales, tableros y sistemas contra incendio."
   active="fotos"
 >
-  <div class="container">
-    <h1 class="page-title">Foto de Obras</h1>
-    <div class="page-subtitle silver" data-cms-html="fotos_intro">
-      Registro visual de montajes industriales, tableros y sistemas contra incendio instalados por
-      nuestro equipo.
+  <header class="page-hero">
+    <div class="page-hero-inner">
+      <h1 class="page-title">Foto de Obras</h1>
+      <div class="page-subtitle silver" data-cms-html="fotos_intro">
+        Registro visual de montajes industriales, tableros y sistemas contra incendio instalados por
+        nuestro equipo.
+      </div>
     </div>
+  </header>
 
+  <div class="container">
     <div class="gallery-grid cms-pending" data-cms-gallery aria-busy="true">
       <div class="cms-skeleton" aria-hidden="true"></div>
       <div class="cms-skeleton" aria-hidden="true"></div>

@@ -7,12 +7,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   description="Frentes de trabajo activos e instalaciones en desarrollo a nivel nacional."
   active="curso"
 >
-  <div class="container">
-    <h1 class="page-title with-subtitle">Obras en Curso</h1>
-    <div class="page-subtitle" data-cms-html="curso_intro">
-      Frentes de trabajo activos e instalaciones en desarrollo a nivel nacional.
+  <header class="page-hero">
+    <div class="page-hero-inner">
+      <h1 class="page-title">Obras en Curso</h1>
+      <div class="page-subtitle" data-cms-html="curso_intro">
+        Frentes de trabajo activos e instalaciones en desarrollo a nivel nacional.
+      </div>
     </div>
+  </header>
 
+  <div class="container">
     <div class="projects-grid cms-pending" data-cms-curso aria-busy="true">
       <div class="cms-skeleton" aria-hidden="true"></div>
       <div class="cms-skeleton" aria-hidden="true"></div>

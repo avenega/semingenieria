@@ -46,56 +46,68 @@ const pilares = [
     </div>
   </section>
 
-  <div class="container">
-    <h2>Sobre Nosotros</h2>
-    <div class="about-text" data-cms-html="about_p1">
-      En <strong>SEM Ingeniería</strong> ofrecemos soluciones integrales en ingeniería eléctrica,
-      electrónica y electromecánica en todo el Paraguay. Acompañamos proyectos residenciales,
-      comerciales e industriales con montajes técnicos de calidad, instalaciones especializadas y
-      sistemas de protección.
+  <section class="page-section">
+    <div class="container">
+      <h2>Sobre Nosotros</h2>
+      <div class="about-text" data-cms-html="about_p1">
+        En <strong>SEM Ingeniería</strong> ofrecemos soluciones integrales en ingeniería eléctrica,
+        electrónica y electromecánica en todo el Paraguay. Acompañamos proyectos residenciales,
+        comerciales e industriales con montajes técnicos de calidad, instalaciones especializadas y
+        sistemas de protección.
+      </div>
+      <div class="about-text about-text-secondary" data-cms-html="about_p2">
+        Trabajamos con responsabilidad técnica, plazos claros y un enfoque en la seguridad de las
+        personas y de las instalaciones, desde el diseño hasta la puesta en marcha.
+      </div>
     </div>
-    <div class="about-text about-text-secondary" data-cms-html="about_p2">
-      Trabajamos con responsabilidad técnica, plazos claros y un enfoque en la seguridad de las
-      personas y de las instalaciones, desde el diseño hasta la puesta en marcha.
-    </div>
+  </section>
 
-    <div class="pillars-grid">
-      {
-        pilares.map((p, i) => (
-          <div class="pillar-card reveal">
-            <i class={`fa-solid ${p.icon}`} data-cms-pillar-icon={i + 1} aria-hidden="true" />
-            <h3 data-cms-text={`pillar_${i + 1}_title`}>{p.title}</h3>
-            <div data-cms-html={`pillar_${i + 1}_text`}>{p.text}</div>
+  <section class="page-section">
+    <div class="container">
+      <h2>Pilares</h2>
+      <div class="pillars-grid">
+        {
+          pilares.map((p, i) => (
+            <div class="pillar-card reveal">
+              <i class={`fa-solid ${p.icon}`} data-cms-pillar-icon={i + 1} aria-hidden="true" />
+              <h3 data-cms-text={`pillar_${i + 1}_title`}>{p.title}</h3>
+              <div data-cms-html={`pillar_${i + 1}_text`}>{p.text}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container">
+      <h2>Visión, misión y compromiso</h2>
+      <div class="mv-grid">
+        <div class="mv-card reveal">
+          <i class="fa-solid fa-eye" aria-hidden="true"></i>
+          <h3>Visión</h3>
+          <div data-cms-html="vision">
+            Ser una empresa referente en los rubros en los que nos desempeñamos, reconocida por la
+            responsabilidad y la excelencia en cada proyecto.
           </div>
-        ))
-      }
-    </div>
-
-    <div class="mv-grid">
-      <div class="mv-card reveal">
-        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-        <h3>Visión</h3>
-        <div data-cms-html="vision">
-          Ser una empresa referente en los rubros en los que nos desempeñamos, reconocida por la
-          responsabilidad y la excelencia en cada proyecto.
         </div>
-      </div>
-      <div class="mv-card reveal">
-        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-        <h3>Misión</h3>
-        <div data-cms-html="mission">
-          Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia y
-          satisfacción a nuestros clientes.
+        <div class="mv-card reveal">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          <h3>Misión</h3>
+          <div data-cms-html="mission">
+            Brindar servicios de ingeniería de alta calidad, garantizando seguridad, eficiencia y
+            satisfacción a nuestros clientes.
+          </div>
         </div>
-      </div>
-      <div class="mv-card reveal">
-        <i class="fa-solid fa-handshake" aria-hidden="true"></i>
-        <h3>Compromiso</h3>
-        <div data-cms-html="commitment">
-          Ejecutar cada obra con ética profesional, cumplimiento normativo y atención cercana, en
-          todo el territorio nacional.
+        <div class="mv-card reveal">
+          <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+          <h3>Compromiso</h3>
+          <div data-cms-html="commitment">
+            Ejecutar cada obra con ética profesional, cumplimiento normativo y atención cercana, en
+            todo el territorio nacional.
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </BaseLayout>
